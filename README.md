@@ -3,6 +3,7 @@
 
 Welcome to our group Repository!
 
-For more information on our project please visit our project proposal *here* (ADD the link)
+For more information on our project please visit our project proposal [*here*](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)
 
-We will be using methylation data from XXX paper that is publically available. More information about our data set please check it out here (link to the readme file in the data subfolder)
+We will be using methylation data from Hannon *et al.* paper that is publically available. More information about our data set please check it out [here](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/data
+
