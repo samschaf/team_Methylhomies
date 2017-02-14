@@ -11,7 +11,7 @@ Details
 -------
 Samples of entorhinal cortex (EC), prefrontal cortex (PFC), superior temporal gyrus (STG), and cerebellum (CER) tissue were collected from 117 patients in archives of the MRC London Neurodegenerative Disease Brain Bank. Degredation and purity analysies were done on the samples using phenol-chloroform extraction. 
 
-DNA methylation was determined using Illumina Infinium HumanMethylation450 BeadChip (Illumina) and an Illumina HiScan System (Illumina). Raw signal intesities of the probe were qualtified using the Illumina Genome Studio software. We attained this raw data through GEO (accession identifier [GSE59685](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59685)).
+DNA methylation was determined using Illumina Infinium HumanMethylation450 BeadChip (Illumina) and an Illumina HiScan System (Illumina). Raw signal intensities of the probe were quantified using the Illumina Genome Studio software. We attained this raw data through GEO accession identifier [GSE59685](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59685)).
 
 The following code was used to retreive the data:
 
