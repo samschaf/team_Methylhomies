@@ -33,9 +33,8 @@ The raw data set of beta values has 485579 total rows, 2 are sample identifiers 
 Descriptions
 -------------
 
-Bisulfite conversion is a technique used to determine methylation on DNA. Treatment of DNA with bisulfite causes cytosine residues to convert to uricil. However, when the cytosine is methylated it is protected from this conversion. Therefore, methylation can be detected through sequencing as reading either a C when it is methylated or a T when it was non methylated.
+**Bisulfite conversion** is a technique used to determine methylation on DNA. Treatment of DNA with bisulfite causes cytosine residues to convert to uricil. However, when the cytosine is methylated it is protected from this conversion. Therefore, methylation can be detected through sequencing as reading either a C when it is methylated or a T when it was non methylated.
 
-Illumina Infinium HumanMethylation450 BeadChip (Illumina) is a probe based way to determine methylation rather than sequencing.  
-This chip is able to detect over 480,000 methylation sites across the human genome. On the chip there are Beads for both the methylated and unmethylated locus. The DNA hybridizes to the bead which represents ts methylated status at that region. The ddCTP (methylated) loci are labled with biotin while the other ddNTPs are labled with 2,4-dinitrophenol. The chip is then stained whith antibodies that differentiate the lables and scanned to show intensities. A value of 0 indicates non methylation, 0.5 indicates one copy of the locus is methylated, and 1 indicates both copies are methylated.
+**Illumina Infinium HumanMethylation450 BeadChip (Illumina)** is a probe based way to determine methylation rather than sequencing.  This chip is able to detect over 480,000 methylation sites across the human genome. On the chip there are beads for both the methylated and unmethylated loci. The DNA hybridizes to the bead which represents its methylated status at that region. The ddCTP (methylated) loci are labled with biotin while the other ddNTPs (unmethylated) are labled with 2,4-dinitrophenol. The chip is then stained whith antibodies that differentiate the lables and scanned to determine intensity values. A value of 0 indicates non methylation, 0.5 indicates one copy of the locus is methylated, and 1 indicates both copies are methylated.
 
 
