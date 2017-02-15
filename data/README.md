@@ -1,5 +1,5 @@
 
-This folder contains data used in the project and detailed description of thee data 
+This folder contains data used in the project and detailed description of the data 
 
 Subdivisions:
 - [Raw Data](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/data/raw_data)
@@ -9,7 +9,7 @@ We are using publically available data that is used and described in the [Hannon
 
 Details
 -------
-Samples of entorhinal cortex (EC), prefrontal cortex (PFC), superior temporal gyrus (STG), and cerebellum (CER) tissue, as well as blood samples, were collected from patients in archives of the MRC London Neurodegenerative Disease Brain Bank. Degredation and purity analysies were done on the samples using phenol-chloroform extraction. A total of 531 samples were included for further analysis.
+Samples of entorhinal cortex (EC), prefrontal cortex (PFC), superior temporal gyrus (STG), and cerebellum (CER) tissue, as well as blood samples, were collected from patients in archives of the MRC London Neurodegenerative Disease Brain Bank. Degredation and purity analysies were done on the samples using phenol-chloroform extraction and bisulfite conversion was performed using the Zymo EZ 96 DNA methylation kit (Zymo Research). A total of 531 samples were included for further analysis.
 
 DNA methylation was determined using Illumina Infinium HumanMethylation450 BeadChip (Illumina) and an Illumina HiScan System (Illumina). Raw signal intensities of the probe were quantified using the Illumina Genome Studio software and converted into beta values using the [*methylumi*](https://bioconductor.org/packages/release/bioc/html/methylumi.html) package in R. We attained this beta value data through GEO accession identifier [GSE59685](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59685)). Explanations and example caclulations of beta values can be found in [this paper](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-587).
 
@@ -29,3 +29,13 @@ GSE59685_betas <- read.csv("~/path/to/file/GSE59685/GSE59685_betas.csv.gz",
 comment.char="#", stringsAsFactors=FALSE)
 ```
 The raw data set of beta values has 485579 total rows, 2 are sample identifiers and the rest are the 485577 probes. These probes relate to the different areas of the DNA that is being tested for DNA methylation. The 532 columns reflect the 521 samples and 1 column for the probe identifiers.
+
+Descriptions
+-------------
+
+Bisulfite conversion is a technique used to determine methylation on DNA. Treatment of DNA with bisulfite causes cytosine residues to convert to uricil. However, when the cytosine is methylated it is protected from this conversion. Therefore, methylation can be detected through sequencing as reading either a C when it is methylated or a T when it was non methylated.
+
+Illumina Infinium HumanMethylation450 BeadChip (Illumina) is a probe based way to determine methylation rather than sequencing.  
+This chip is able to detect over 480,000 methylation sites across the human genome. On the chip there are Beads for both the methylated and unmethylated locus. The DNA hybridizes to the bead which represents ts methylated status at that region. The ddCTP (methylated) loci are labled with biotin while the other ddNTPs are labled with 2,4-dinitrophenol. The chip is then stained whith antibodies that differentiate the lables and scanned to show intensities. A value of 0 indicates non methylation, 0.5 indicates one copy of the locus is methylated, and 1 indicates both copies are methylated.
+
+
