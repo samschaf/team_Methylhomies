@@ -25,6 +25,7 @@ filePaths
 To read file containg the beta values into R the following code was used:
 
 ```{r beta, eval=FALSE}
-GSE59685_betas <- read.csv("~/path/to/file/GSE59685/GSE59685_betas.csv.gz", comment.char="#", stringsAsFactors=FALSE)
+GSE59685_betas <- read.csv("~/path/to/file/GSE59685/GSE59685_betas.csv.gz", 
+comment.char="#", stringsAsFactors=FALSE)
 ```
 The raw data set of beta values has 485579 total rows, 2 are sample identifiers and the rest are the 485577 probes. The 532 columns reflect the 521 samples and 1 column for the probe identifiers.
