@@ -1,0 +1,36 @@
+---
+title: "Normalization of Beta Data"
+output: 
+  github_document:
+    toc: yes
+---
+Illumina Infinium HumanMethylation450 BeadChip supersedes its predecessors because of of its increased coverage of the genome with a more diverse set of genomic categories. However, to get this improved coverage two different probe designs are used. These two types of probes have been shown to exhibit widely different methylation distributions causing a potential bias in the averaged methylation values [(Dedeurwaerder et al 2011)](https://www.ncbi.nlm.nih.gov/pubmed/22126295/). 
+[Morris and Beck (2015)](https://www.ncbi.nlm.nih.gov/pubmed/25233806) have reviewed the commonly bioinformatic methods used to correct for this bias.  
+
+The Beta values for this study can be downloaded by using the following script
+
+```{r download beta values}
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("GEOquery")
+library(GEOquery)
+filePaths = getGEOSuppFiles("GSE59685")
+filePaths
+```
+
+This csv file has already been **desen** normalized using the R package ["wateRmelon"](https://www.bioconductor.org/packages/devel/bioc/manuals/wateRmelon/man/wateRmelon.pdf).
+
+The desen method for normalizing Illumina 540K methylation array data was developed by [Pidsley et al 2013](http://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-14-293). It has three different preprocessing steps (1) background adjustment for he offset between Type 1 and Type II probes in...  
+
+```{r format beta values}
+
+GSE59685<-read.csv("/home/hbrewis/Methylhomies/GSE59685 datafiles/GSE59685_betas.csv", skip=5)
+GSE59685<-GSE59685[-1,]
+x<-as.matrix(GSE59685)
+y<-apply(x, 2, as.numeric)
+GSE59685_numeric<-as.data.frame(y)
+GSE59685_numeric<-GSE59685_numeric[,-1]
+rownames(GSE59685_numeric)<-GSE59685$X
+save(GSE59685_numeric, file="GSE59685_numeric.RData")
+```
+
+

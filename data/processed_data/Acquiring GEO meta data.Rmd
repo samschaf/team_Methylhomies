@@ -1,0 +1,96 @@
+---
+title: "Acuiring GEO meta data"
+output: 
+  github_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The NCBI Gene Expression Omnibus (GEO) is the largest public repository of microarray data. Finding data of interest can therefore be quick challenging without the correct tools. GEOmetadb is a database for accessing metadata associated with datasets, samples, and different platforms. It works by storing all the NCBI GEO metadata into a SQLite database that can be aquired locally. More background on the GEOmetadb can be found [here](https://www.bioconductor.org/packages/devel/bioc/manuals/GEOmetadb/man/GEOmetadb.pdf). 
+
+To download the meta data:
+
+```{r getSQLiteFile}
+source("http://bioconductor.org/biocLite.R")
+biocLite("GEOmetadb")
+library(GEOmetadb)
+getSQLiteFile()
+con <- dbConnect(SQLite(), "GEOmetadb.sqlite")
+dbListFields(con, "gsm") #lists the table headers of the metadata
+```
+
+To view the view the metadata for our groups specfic GEO database "GSE59685" I used the following code:
+
+```{r view group data}
+x<-dbGetQuery(con, "select title,series_id,gsm,source_name_ch1,characteristics_ch1 from gsm where gpl='GPL13534'") #specifies which table headers are associated with our dataset. GPL13534 is the accession number for the platfrom used to generate the data (Illumina HumanMethylation450 BeadChip)
+meta<-x[which(x$series_id=="GSE59685"),] #specifies the metadata for our dataset.
+```
+
+The resulting table does not breakup the characteristics of the dataset (such as sex, age, tissue time etc.). The following script was used to create a new coloum for each of these characteristics:
+
+```{r variables of metadata}
+meta$Subject<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("subjectid: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][1], fixed = T) 
+})) # subject ID number
+meta$barcode<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("barcode: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][2], fixed = T) 
+})) # sample barcode number
+meta$ad.disease.status<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("ad.disease.status: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][3], fixed = T) 
+})) # subject's status for alzheimer's disease
+meta$braak.stage<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("braak.stage: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][4], fixed = T) # always field 2
+})) #braak stage of subject. A method of staging Alzheimer's disease.
+meta$Sex<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("Sex: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][5], fixed = T) 
+})) # Sex of subject
+meta$age.blood<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("age.blood: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][6], fixed = T) 
+})) # Age of subject when blood was taken
+meta$age.brain<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("age.brain: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][7], fixed = T) 
+})) # Age of subject when brain sample was taken
+meta$Tissue<-unlist(sapply(1:nrow(meta), function(x){
+  gsub("source tissue: ","",strsplit(meta$characteristics_ch1[x], ";\t")[[1]][8], fixed = T) 
+})) # Tissue type of sample
+```
+
+Some of the remaining coloums remaining in the data frame are uninformative for analysis. To clean up the data for easy viewing, these factors were removed:
+
+```{r metadata clean up}
+meta$description<-NULL
+meta$source_name_ch1<-NULL
+meta$characteristics_ch1<-NULL
+meta$title<-NULL
+```
+
+There are two main tissues types in this dataset: whole blood and brain. For our group project we are only interested in the brain tissue sample. 
+
+I wanted to determine the number of subjects we have with samples all 4 brain regions:
+
+```{r sample examination}
+Blood<-subset(meta, Tissue=="whole blood") #subset of samples that are blood
+Brain<-subset(meta, Tissue!="whole blood") #subset of samples that are brain
+
+Brain_matched<-Brain[which(Brain$Subject%in%Blood$Subject),]
+Blood_matched<-Blood[which(Blood$Subject%in%Brain_matched$Subject),]
+Meta_matched<-rbind(Brain_matched,Blood_matched)
+tapply(Brain_matched$Subject, Brain_matched$Tissue, function(x) length(unique(x))) 
+```
+
+A total of 71 individuals have samples for all 4 brain regions. 
+
+```{r}
+save(Meta_matched, file='Meta_matched_GSE59685.RData')
+```
+
+I then wanted to create file with that matched the meta data and the Illumina Methylation450 BeadChip beta values. 
+```{r}
+load("Meta_matched_GSE59685.RData")
+GSE59685_matched<-GSE59685_numeric[,which(colnames(GSE59685_numeric)%in%Meta_matched$gsm)]
+save(GSE59685_matched, file="GSE59685.RData")
+```
+

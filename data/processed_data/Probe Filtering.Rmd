@@ -1,0 +1,103 @@
+---
+title: "Probe Filtering"
+output: 
+  github_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Data set up and Probe filter
+
+I first loaded the files from the meta data pre-processing steps and formatted it in prepration for probe filtering:
+```{r load }
+load("GSE59685.RData")
+load("Meta_matched_GSE59685.Rdata")
+```
+
+```{r format meta matched}
+Meta_matched<-Meta_matched[which(Meta_matched$gsm%in%colnames(GSE59685_matched)),]
+Meta_matched<-Meta_matched[match(colnames(GSE59685_matched), Meta_matched$gsm),]
+```
+
+First I wanted to know how many probes are in the data set.
+```{r CpGs}
+CpGs<- rownames(GSE59685_matched)
+length(CpGs)
+```
+Prior to filtering, there are **485577** probes.
+
+I used two different annotation sets that were designed for probes used in Illumina HumanMethylation450 BeadChip:
+(1) Platform GPL13534 (standard platform for the 450 BeadChip): can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL13534)  
+(2) Platform GPL16304 (Price Platform, additional annotations to go on top of the standard GPL13534): can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL16304)
+
+I opened both of these platforms in R:
+```{r annotation platforms}
+GPL13534<- read.delim("~/GPL13534.txt", comment.char="#")
+Price_Platform <- read.delim("~/Price_Platform.txt", comment.char = "#")
+```
+
+I then merged the two annotation files:
+```{r merge annotations}
+annotation <- merge(Price_Platform, GPL13534, by ="ID")
+```
+From here I was ready to start filtering out probes. 
+
+##Probe Filtering
+
+I started by removing SNP probes.
+```{r SNp probes}
+SNP_Probes<-CpGs[grep("rs", CpGs)]
+GSE59685_filtered<-GSE59685_matched[!CpGs%in%SNP_Probes,] #SNP probes start with rs instead of cg  
+dim(GSE59685_filtered) 
+```
+A total of **65** probes were removed, leaving me with **485512**.
+
+I then wanted to remove probes that have a SNP within the probe:
+```{r probes with SNPs}
+snp_index <-annotation$ID[which(is.na(annotation$n_target.CpG.SNP))]
+GSE59685_filtered<- GSE59685_filtered[which(rownames(GSE59685_filtered)%in%snp_index), ]
+dim(GSE59685_filtered)
+```
+This time **20869** probes were removed, leaving me with **464643** probes
+
+Probes that targetd the X and Y chromosome were then removed
+```{r X and Y probes}
+notXY <- annotation$ID[!annotation$CHR%in%c("X", "Y")]
+GSE59685_filtered<- GSE59685_filtered[which(rownames(GSE59685_filtered)%in%notXY), ]
+dim(GSE59685_filtered) 
+```
+**11475** probes were removed, leaving a total of **453168**
+
+I also wanted to remove probes that had multiple anneling sites on the genome. First I removed probes that cross hybridized with either the X or Y chromosome.
+```{r cross hybridizing probes}
+xy_hit_index <- annotation$ID[which(annotation$XY_Hits == "XY_NO")]
+GSE59685_filtered<- GSE59685_filtered[which(rownames(GSE59685_filtered)%in%xy_hit_index), ]
+dim(GSE59685_filtered)
+```
+**10673** probes were removed, leaving a total of **442495**
+
+I then removed probes that cross hybridized on any autosomes.
+```{r cross hybridizing probes 2}
+auto_hit_index <- annotation$ID[which(annotation$Autosomal_Hits == "A_NO")]
+GSE59685_filtered<- GSE59685_filtered[which(rownames(GSE59685_filtered)%in%auto_hit_index), ]
+dim(GSE59685_filtered)
+```
+**27415** probes were removed, leaving a total of **415080**
+
+Finally I want to eliminate any of the probes with NAs:
+```{r NA filter}
+na_count_probe <-sapply(1:nrow(GSE59685_filtered), function(y) length(which(is.na(GSE59685_filtered[y,]))))
+na_count_probe_good<-which(na_count_probe<(ncolGSE59685_filtered*0.05))
+GSE59685_filtered<-GSE59685_filtered[na_count_probe_good,]
+dim(GSE59685_filtered)
+```
+
+
+This filtered data set was filnally saved as an Rdata file.
+```{r save rdata file}
+save(GSE59685_filtered, file="GSE59685_filtered.RData")
+```
+
