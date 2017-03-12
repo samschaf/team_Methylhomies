@@ -63,7 +63,7 @@ dim(GSE59685_filtered)
 ```
 This time **20869** probes were removed, leaving me with **464643** probes
 
-Probes that targetd the X and Y chromosome were then removed
+Probes that targeted the X and Y chromosome were then removed
 ```{r X and Y probes}
 notXY <- annotation$ID[!annotation$CHR%in%c("X", "Y")]
 GSE59685_filtered<- GSE59685_filtered[which(rownames(GSE59685_filtered)%in%notXY), ]
