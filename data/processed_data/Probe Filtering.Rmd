@@ -26,8 +26,8 @@ length(CpGs)
 Prior to filtering, there are **485577** probes.
 
 I used two different annotation sets that were designed for probes used in Illumina HumanMethylation450 BeadChip:
-(1) Platform GPL13534 (standard platform for the 450 BeadChip): can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL13534)  
-(2) Platform GPL16304 (Price Platform, additional annotations to go on top of the standard GPL13534): can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL16304)
+(1) Platform GPL13534 (standard platform for the 450 BeadChip) which can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL13534)  
+(2) Platform GPL16304 (Price Platform, additional annotations to go on top of the standard GPL13534) which can download from [here](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL16304)
 
 I opened both of these platforms in R:
 ```{r annotation platforms}
