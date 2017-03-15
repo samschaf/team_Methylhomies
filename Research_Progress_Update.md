@@ -25,19 +25,33 @@ Pre-processing of our dataset has shown that out of the 122 individuals samples,
 
 *Cell type prediction (neuronal proportion) for normalized, uncorrected data:*
 
+![](Images/neuron_uncor.png)
+
 Four peaks appeared. These could correspond to different neuronal distributions in the four brain regions.
 
 *PCA on normalized, uncorrected data:*
 
+![](Images/PCA_uncor.png)
+
 The largest contributors to variance are age, AD disease status, Braak Stage, and chip, with some row effects.
 
-*Cell type prediction (neuronal proportion) for ComBat-corrected data:* The initial four peaks are smoothed into two main peaks; the second peak has a large spread. The difference in distributions may again be due to brain region differences or (more likely) to differences in neuronal ratios between control and AD subjects.
+*Cell type prediction (neuronal proportion) for ComBat-corrected data:* 
+
+![](Images/neuron_batch_cor.png)
+
+The initial four peaks are smoothed into two main peaks; the second peak has a large spread. The difference in distributions may again be due to brain region differences or (more likely) to differences in neuronal ratios between control and AD subjects.
 
 *PCA on ComBat-corrected data:*
 
+![](Images/PCA_batch_cor.png)
+
 Row and chip effects were removed. This slightly altered the PC distribution of the remaining variables.
 
-*PCA on CETS-corrected data:* Correcting for cell type based on the estimation from ComBat-corrected neuronal proportions reduced the effect of age, increased the effect of sex, and altered the significance and PC distribution of AD status/Braak Stage.
+*PCA on CETS-corrected data:* 
+
+![](Images/PCA_cell_cor.png)
+
+Correcting for cell type based on the estimation from ComBat-corrected neuronal proportions reduced the effect of age, increased the effect of sex, and altered the significance and PC distribution of AD status/Braak Stage.
 
 **References**
 
