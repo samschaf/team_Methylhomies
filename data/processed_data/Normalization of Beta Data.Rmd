@@ -1,12 +1,15 @@
----
-title: "Normalization of Beta Data"
-output: 
-  github_document:
-    toc: yes
----
-Illumina Infinium HumanMethylation450 BeadChip supersedes its predecessors because of of its increased coverage of the genome with a more diverse set of genomic categories. However, to get this improved coverage two different probe designs are used. These two types of probes have been shown to exhibit widely different methylation distributions causing a potential bias in the averaged methylation values [(Dedeurwaerder et al 2011)](https://www.ncbi.nlm.nih.gov/pubmed/22126295/). 
+Normalization of Beta Data
+=======================================
+
+### Original author: Rachel Edgar
+### Edited by: Hilary Brewis
+### Date updated: March 15, 2017
+
+**Background**
+Illumina Infinium HumanMethylation450 BeadChip supersedes its predecessors because of its increased coverage of the genome with a more diverse set of genomic categories. However, to get this improved coverage two different probe designs are used. These two types of probes have been shown to exhibit widely different methylation distributions causing a potential bias in the averaged methylation values [(Dedeurwaerder et al 2011)](https://www.ncbi.nlm.nih.gov/pubmed/22126295/). 
 [Morris and Beck (2015)](https://www.ncbi.nlm.nih.gov/pubmed/25233806) have reviewed the commonly bioinformatic methods used to correct for this bias.  
 
+**Acquiring Beta data**
 The Beta values for this study can be downloaded by using the following script
 
 ```{r download beta values}
@@ -16,10 +19,10 @@ library(GEOquery)
 filePaths = getGEOSuppFiles("GSE59685")
 filePaths
 ```
+**Dasen normalization**
+This csv file has already been **dasen** normalized using the R package ["wateRmelon"](https://www.bioconductor.org/packages/devel/bioc/manuals/wateRmelon/man/wateRmelon.pdf).
 
-This csv file has already been **desen** normalized using the R package ["wateRmelon"](https://www.bioconductor.org/packages/devel/bioc/manuals/wateRmelon/man/wateRmelon.pdf).
-
-The desen method for normalizing Illumina 540K methylation array data was developed by [Pidsley et al 2013](http://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-14-293). It has three different preprocessing steps (1) background adjustment for he offset between Type 1 and Type II probes in...  
+The desen method for normalizing Illumina 540K methylation array data was developed by [Pidsley et al 2013](http://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-14-293). It has three different normalization preprocessing methods applied (1) background adjustment for the offset between Type 1 and Type II probes intensities are added to Type I intensities (2) between-array normalization is applied to Type I and Type II probes separately (3) no dye bias correction applied. The dasen method has been shown to perform consistently well for both Type and Type II probe data ([Pidsley et al 2013](http://bmcgenomics.biomedcentral.com/articles/10.1186/1471-2164-14-293)), and therefore was deemed an appropriate normalization method for this dataset.   
 
 ```{r format beta values}
 
