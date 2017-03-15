@@ -1,4 +1,4 @@
-Research Progress Update
+Progress Report
 ================
 
 ### What has changed based on the final proposal?
