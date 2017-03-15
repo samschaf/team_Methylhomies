@@ -1,9 +1,9 @@
 Probe Filtering
 ======================
 
-## Original author: Rachel Edgar
-## Edited by: Hilary Brewis
-## Updated: March 15, 2017
+### Original author: Rachel Edgar
+### Edited by: Hilary Brewis
+### Updated: March 15, 2017
 
 ### Data set up and probe filter
 
