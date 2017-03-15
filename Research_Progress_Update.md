@@ -1,7 +1,7 @@
 Research Proposal
 ================
 
-**What has changed based on the final proposal?**
+### What has changed based on the final proposal?
 
 For our project we will be using the same dataset that we had detailed in our proposal (accession identifier [GSE59685](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE59685)). However, since the writing of our proposal, we have discovered that the nature of the dataset is different from our initial understanding. We came across this dataset through a study by [Hannon et al (2015)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4844197/), which examined methylation between whole blood, cortex, and cerebellum tissues. As this paper did not indicate otherwise, we believed that the dataset was comprised of primarily healthy individuals. Since acquiring and pre-processing the dataset, we have discovered that the majority of the samples (n= 235 from a total of n= 366) were obtained from individuals with Alzheimer's disease. The metadata indicates the disease status and braak stage (a measure that classifies the degree of pathology in Alzheimer’s disease) for each sample. 
 
@@ -9,7 +9,7 @@ Our initial main objective for this project was to establish a baseline of diffe
 
 Overall the general task assignments will remain the same for each group member. Hilary has preprocessed the data sets and Sam has performed initial PCA, removed batch effects, and corrected for cell type. Lisa and Cassia will examine the overall methylation levels between the cell-type corrected and non cell-type corrected data, while Randip will examine the DMRs between the brain regions. If different DMRs are discovered between the datasets, Sam will aid Randip in researching functional biological implications of the identified regions.      
 
-**What is the progress of the analyses?**
+### What is the progress of the analyses?
 
 The dataset containing the methylation beta values for 122 individuals was retrieved and downloaded from the [GEO database](https://www.ncbi.nlm.nih.gov/geo/). The metadata associated with this dataset was acquired using the SQLite database. Both the beta values file and the metadata underwent some slight formatting and cleaning to create files that were easy to read and manipulate (details on these steps can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Acquiring%20GEO%20meta%20data.Rmd)). Initially we planned on normalizing the beta values using quantro and BMIQ, however when the downloaded dataset was examined it was found that it had already been normalized using the dasen method. Instead of “un-normalizing” the data and renormalizing it with our planned method, we decided to proceed with the dasen normalized data. Details on the dasen method can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Normalization%20of%20Beta%20Data.Rmd). We then moved onto filtering out probes. Two different probe annotation sets (lumi package) designed for the Illumina HumanMethylation450 BeadChip ([GPL13534](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL13534) and [GPL16304](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GPL16304)) were used to identify and filter out: probes targeting SNPs, probes containing SNPs, probes targeted to the X and Y chromosomes, and cross hybridized probes. Specifics on this process can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Probe%20Filtering.Rmd). At this point the dataset still contained samples of whole blood. As we are only interested in the brain tissue samples, all blood samples were removed (steps can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Create.brain.only.Rmd)).
 
@@ -19,41 +19,41 @@ These two finalized datasets are now ready for further analysis. We will primari
 
 We will then move onto examining DMRs using the R package DMRcate ([Peters et al, 2015](https://epigeneticsandchromatin.biomedcentral.com/articles/10.1186/1756-8935-8-6)). This package, along with limma, will allow us to identify and map differentially methylated regions onto specific genomic locations using probe information. During the limma-based linear regression, we will account for variation in the dataset caused by subject, sex, Alzheimer’s status and age by including these as covariates. Functional enrichment analysis of the methylated regions will be assessed using the [IlluminaHumanMethylation450k.db](https://bioconductor.org/packages/release/data/annotation/html/IlluminaHumanMethylation450k.db.html) package.
 
-**Results**
+### Results
 
 Pre-processing of our dataset has shown that out of the 122 individuals samples, 71 of them have samples for all 4 brain regions. There were also a total of 485 577 probes used to generate the beta values. During probe filtering 70 497 probes were removed, leaving a total of 415 080. 
 
-*Cell type prediction (neuronal proportion) for normalized, uncorrected data:*
+**Cell type prediction (neuronal proportion) for normalized, uncorrected data:**
 
 ![](Images/neuron_uncor.png)
 
 Four peaks appeared. These could correspond to different neuronal distributions in the four brain regions.
 
-*PCA on normalized, uncorrected data:*
+**PCA on normalized, uncorrected data:**
 
 ![](Images/PCA_uncor.png)
 
 The largest contributors to variance are age, AD disease status, Braak Stage, and chip, with some row effects.
 
-*Cell type prediction (neuronal proportion) for ComBat-corrected data:* 
+**Cell type prediction (neuronal proportion) for ComBat-corrected data:** 
 
 ![](Images/neuron_batch_cor.png)
 
 The initial four peaks are smoothed into two main peaks; the second peak has a large spread. The difference in distributions may again be due to brain region differences or (more likely) to differences in neuronal ratios between control and AD subjects.
 
-*PCA on ComBat-corrected data:*
+**PCA on ComBat-corrected data:**
 
 ![](Images/PCA_batch_cor.png)
 
 Row and chip effects were removed. This slightly altered the PC distribution of the remaining variables.
 
-*PCA on CETS-corrected data:* 
+**PCA on CETS-corrected data:** 
 
 ![](Images/PCA_cell_cor.png)
 
 Correcting for cell type based on the estimation from ComBat-corrected neuronal proportions reduced the effect of age, increased the effect of sex, and altered the significance and PC distribution of AD status/Braak Stage.
 
-**References**
+### References
 
 Guintivano, J., Aryee, M.J., & Kaminsky, Z.A. (2013). A cell epigenotype specific model for the correction of brain cellular heterogeneity bias and its application to age, brain region and major depression. *Epigenetics*. 8(3): 290-302.
 
