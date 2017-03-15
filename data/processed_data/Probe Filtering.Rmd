@@ -5,7 +5,7 @@ Probe Filtering
 ## Edited by: Hilary Brewis
 ## Updated: March 15, 2017
 
-### Data set up and Probe filter
+### Data set up and probe filter
 
 I first loaded the files from the meta data pre-processing steps and formatted it in prepration for probe filtering:
 ```{r load }
@@ -41,7 +41,7 @@ annotation <- merge(Price_Platform, GPL13534, by ="ID")
 ```
 From here I was ready to start filtering out probes. 
 
-### Probe Filtering
+### Probe filtering
 
 I started by removing SNP probes.
 ```{r SNp probes}
