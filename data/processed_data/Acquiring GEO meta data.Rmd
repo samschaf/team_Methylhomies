@@ -2,7 +2,7 @@ Acquiring GEO meta data
 ==================================
 
 ### Original author: Rachel Edgar
-### Updated by: Hilary Brewis
+### Edited by: Hilary Brewis
 ### Date updated: March 15, 2017
 
 The NCBI Gene Expression Omnibus (GEO) is the largest public repository of microarray data. Finding data of interest can therefore be quick challenging without the correct tools. GEOmetadb is a database for accessing metadata associated with datasets, samples, and different platforms. It works by storing all the NCBI GEO metadata into a SQLite database that can be aquired locally. More background on the GEOmetadb can be found [here](https://www.bioconductor.org/packages/devel/bioc/manuals/GEOmetadb/man/GEOmetadb.pdf). 
