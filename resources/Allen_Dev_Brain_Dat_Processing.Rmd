@@ -1,0 +1,250 @@
+Allen Developing Human Brain 450K Data Preprocessing
+========================================================
+## By: Sumaiya Islam
+## Date updated: August 9, 2016
+  
+### Script contents:
+  - pre-processing of post-mortem human brain samples analyzed by Illumina HM450K platform from Allen Brain Institute (http://download.alleninstitute.org/brainspan/Methylation/). 
+   
+### A. Set up working directory & packages
+
+R version 3.2.3 (2015-12-10)
+
+We will initially set our working directory and load our libraries.
+
+```{r,include=FALSE}
+setwd("/home/sschaffner/Allen_Brain")
+library(methylumi)
+library(gplots)
+library(reshape)
+library(marray)
+library(lumi)
+library(lattice)
+library("RColorBrewer")
+library(knitr)
+library(xtable)
+library(ggplot2)
+```
+
+### B. Load dataset(s)
+
+We will load the dataset and associated meta data from the Allen Brain Institute website: http://download.alleninstitute.org/brainspan/Methylation/
+
+```{r echo=FALSE}
+# download 1109 methylation data (average betas) and associated meta data (half of the data)
+brain.9.dat<-as.data.frame(read.table("1109_methylation_beta_values.txt", skip=14, header=TRUE, row.names=1))
+brain.9.meta<-as.data.frame(read.csv("1109_meta_data.csv", header=TRUE))
+brain.9.meta$Plate<-"1109" # all Plate # in this meta data are from Plate 1109
+# for Row
+for (i in 1:nrow(brain.9.meta)){
+  brain.9.meta$Row[i]<-paste(substr(brain.9.meta[i,"Terminus"], start=1, stop=3))
+}
+# for Brain_Region
+for (i in 1:nrow(brain.9.meta)){
+  brain.9.meta$Brain_Region[i]<-paste(substr(brain.9.meta[i,"Sample_ID"], start=5, stop=7))
+}
+# for Individual
+for (i in 1:nrow(brain.9.meta)){
+  brain.9.meta$Individual[i]<-paste(substr(brain.9.meta[i,"Sample_ID"], start=1, stop=3))
+}
+colnames(brain.9.dat)<-brain.9.meta$Sample_ID # replace colnames of methylation data with Sample_ID of meta
+
+# download 1110 methylation data (average betas) and associated meta data (half of the data)
+brain.10.dat<-as.data.frame(read.table("1110_methylation_beta_values.txt", skip=14, header=TRUE, row.names=1))
+brain.10.meta<-as.data.frame(read.csv("1110_meta_data.csv", header=TRUE))
+brain.10.meta$Plate<-"1110" # all Plate # in this meta data are from Plate 1109
+# for Row
+for (i in 1:nrow(brain.10.meta)){
+  brain.10.meta$Row[i]<-paste(substr(brain.10.meta[i,"Terminus"], start=1, stop=3))
+}
+# for Brain_Region
+for (i in 1:nrow(brain.10.meta)){
+  brain.10.meta$Brain_Region[i]<-paste(substr(brain.10.meta[i,"Sample_ID"], start=5, stop=7))
+}
+# for Individual
+for (i in 1:nrow(brain.10.meta)){
+  brain.10.meta$Individual[i]<-paste(substr(brain.10.meta[i,"Sample_ID"], start=1, stop=3))
+}
+colnames(brain.10.dat)<-brain.10.meta$Sample_ID # replace colnames of methylation data with Sample_ID of meta
+
+## merge brain.9.dat and brain.10.dat methylation data
+identical(rownames(brain.9.dat), rownames(brain.10.dat)) # TRUE
+Allen.Dev.Brain.dat<-cbind(brain.9.dat, brain.10.dat)
+## merge associated meta data
+identical(colnames(brain.9.meta), colnames(brain.10.meta)) # TRUE
+Allen.Dev.Brain.meta<-rbind(brain.9.meta, brain.10.meta)
+
+# re-structure meta data
+Allen.Dev.Brain.meta$Plate<-as.factor(Allen.Dev.Brain.meta$Plate)
+Allen.Dev.Brain.meta$Bead_Chip<-as.factor(Allen.Dev.Brain.meta$Bead_Chip)
+Allen.Dev.Brain.meta$Sentrix_ID<-as.factor(Allen.Dev.Brain.meta$Sentrix_ID)
+Allen.Dev.Brain.meta$Row<-as.factor(Allen.Dev.Brain.meta$Row)
+Allen.Dev.Brain.meta$Complete_Barcode<-as.character(Allen.Dev.Brain.meta$Complete_Barcode)
+Allen.Dev.Brain.meta$Sample<-as.character(Allen.Dev.Brain.meta$Sample)
+
+# fix errors in Brain_Region meta variable
+Allen.Dev.Brain.meta$Brain_Region<-as.character(Allen.Dev.Brain.meta$Brain_Region)
+brain.reg<-Allen.Dev.Brain.meta$Brain_Region
+brain.regions <- gsub("AIC", "A1C", gsub("MIC", "M1C", gsub("SIC", "S1C", gsub("STS", "STC", gsub("VIC", "V1C", brain.reg)))))
+Allen.Dev.Brain.meta$Brain_Region<-as.factor(brain.regions)
+# fix errors in Sample_ID meta variable
+Allen.Dev.Brain.meta$Sample_ID<-as.character(Allen.Dev.Brain.meta$Sample_ID)
+Sample_Name<-paste(Allen.Dev.Brain.meta$Individual, Allen.Dev.Brain.meta$Brain_Region, sep="_")
+Allen.Dev.Brain.meta$Sample_ID<-as.character(Sample_Name)
+Allen.Dev.Brain.meta.fin<-Allen.Dev.Brain.meta[,c("Plate","Bead_Chip","Well_Position","Sentrix_ID",       "Terminus",  "Complete_Barcode","ALU_C4_HB_313_Ct", "Sample_ID",  "Row","Brain_Region", "Individual")]
+
+# note: Mislabel for Individual 179 but don't know which is the correct label (could be either 173 or 174...)
+Allen.Dev.Brain.meta$Individual<-as.factor(Allen.Dev.Brain.meta$Individual) 
+# To resolve whether the 179 labelled sample is 173 or 174, will look at the 65 SNP probes in the methylation data for these samples
+Allen.rs <- Allen.Dev.Brain.dat[grep("rs", rownames(Allen.Dev.Brain.dat)),]
+Allen.rs.179<-Allen.rs[,grep("179", colnames(Allen.rs))]
+Allen.rs.174<-Allen.rs[,"174_DFC"]
+Allen.rs.173<-Allen.rs[,"173_AMY"]
+compare.rs<-data.frame(Site=rownames(Allen.rs), Ind.179=Allen.rs.179, Ind.173=Allen.rs.173, Ind.174=Allen.rs.174)
+# We can see that the 179 mislabel was supposed to be 173. Will re-label that sample
+Allen.179.label<-Allen.Dev.Brain.meta.fin$Sample_ID[grep("179", Allen.Dev.Brain.meta.fin$Sample_ID)]
+sample_id_corrected<-gsub("179_S1C", "173_S1C", Allen.Dev.Brain.meta.fin$Sample_ID)
+Allen.Dev.Brain.meta.fin$Sample_ID<-as.factor(sample_id_corrected)
+sample_individual_corrected<-gsub("179", "173", Allen.Dev.Brain.meta.fin$Individual)
+Allen.Dev.Brain.meta.fin$Individual<-as.factor(sample_individual_corrected)
+
+# add age to meta data
+age_months<-gsub("132", " 4", gsub("139", "4", gsub("131", "6", gsub("171", "10", gsub("122", "12", gsub("124", "156", gsub("119", "180", gsub("105", "216", gsub("127", "228", gsub("143", "24", gsub("172", "36", gsub("173", "36", gsub("123", "444", gsub("118", "48", gsub("141", "96", gsub("174","96", Allen.Dev.Brain.meta.fin$Individual))))))))))))))))
+check.dat<-data.frame(Ind=Allen.Dev.Brain.meta.fin$Individual, Age_Months=age_months) # all entries are correct
+Allen.Dev.Brain.meta.fin$Age_Months<-as.numeric(age_months)
+
+# check structure of final meta data frame
+str(Allen.Dev.Brain.meta.fin)
+
+# match colnames of methylation data to associated meta data
+colnames(Allen.Dev.Brain.dat)<-as.character(Allen.Dev.Brain.meta.fin$Sample_ID)
+identical(colnames(Allen.Dev.Brain.dat),as.character(Allen.Dev.Brain.meta.fin$Sample_ID)) # TRUE
+
+# save both objects
+save(Allen.Dev.Brain.dat, file="Allen_Human_Developing_Brain_450K_Raw_Data.RData")
+save(Allen.Dev.Brain.meta.fin, file="Allen_Human_Developing_Brain_450K_Meta_Data.RData")
+```
+
+### C. Probe Filtering
+
+We will perform probe filtering  using another methylumi object with fData annotation data
+
+```{r}
+# load another methylumi object with fData annotation data
+load("Priest.RData")
+fDat<-fData(Priest)
+all.dat<-Allen.Dev.Brain.dat
+all.dat<-all.dat[rownames(fDat),] # sort Allen data according to fData probe order
+identical(rownames(all.dat),rownames(fDat)) # order of probes in fData and Allen data match
+```
+
+
+##### Removal of SNP Probes
+
+```{r echo=FALSE}
+Allen.rs <- all.dat[substring(featureNames(Priest), 1, 2) == "rs", ] 
+dim(Allen.filtered <- all.dat[substring(featureNames(Priest),1,2) != "rs", ]) # probes = 485512, n = 177
+```
+
+This cluster plot observes the samples based on the 65 SNP probes alone 
+
+```{r fig.width=12, fig.height=10, echo=FALSE}
+plotSampleRelation(as.matrix(Allen.rs),method="cluster", cex=0.7)
+```
+
+We see that the samples largely cluster based on their SNP probes by individual (as expected). However, we can see that "139_S1C" clusters with the other 132 samples, signifying that is is mislabeled. Oddly there is already a "132_S1C" sample though---could "139_S1C" represent a replicate of "132_S1C"? Will note this and address this once we look at the DNA methylation profile (ie would expect that "132_S1C" and "139_S1C" samples to be tightly correlated if they are indeed technical replicates). 
+
+
+##### Remove XY probes
+
+We will look at probes located on the X and Y chromosomes but will remove these from our dataset.  
+
+```{r CARE_Tissue_XYprobes, echo=FALSE}
+Allen.xy <- Allen.filtered[fData(Priest)$CHR%in%c("X", "Y"), ]
+dim(Allen.filtered <- Allen.filtered[which(!(rownames(Allen.filtered)%in%rownames(Allen.xy))), ]) # probes = 473864, n = 177
+```
+
+
+##### Filtering out "bad" probes
+
+##### Missing beta values
+
+We are looking for probes where there was no average beta value (the measure of methylation) calculated by GenomeStudio. This is done when GenomeStudio detects intensity values from less than three beads for a given probe. There are multiple beads on the array as a means of obtaining technical replicates and so probes which have fewer than three beads representing it are called as an NA.
+**avgbeta** is a matrix of the beta values for each sample at each probe. 
+**badAvgbeta** is a logical matrix that shows which probes have NAs for which samples.
+From this we make **nbadAvgbeta**, which sums up the number of "TRUE"'s for each row.  Our threshold is 1 badAvgbeta for a probe to be removed.
+
+```{r CARE_Tissue_badAvgbeta, fig.width=8, fig.height=7, echo=FALSE}
+avgbeta <- Allen.filtered
+badAvgbeta <- is.na(avgbeta)
+nbadAvgbeta <- print(sum(rowSums(badAvgbeta)>=1))  #7223
+
+dotchart(colSums(badAvgbeta), cex=0.8, main = paste("Bad Avg Beta: probes = 7223"))
+```
+
+This dot chart is shows how many probes are defined as having a "bad average beta value" by the threshold we specified above. As a general rule of thumb a sample has to have more than 10% (40,000) of probes deemed "bad" before it is considered for removal. Our worst sample has only ~1600 probes with a bad average beta value. Here we have identified 7223 probes with a bad average beta value using thresholds defined above. 
+
+##### Bad detection p-values
+
+**Detection p-values:** the confidence that the signal from the probe in question is more than the background (as defined by the negative control probes on the Illumina array).  We set our p-value threshold to 0.01.
+
+Unfortunately we were not provided with detection p-values from Allen Brain Institute so cannot filter out bad detection p-value probes. 
+
+
+##### Removing these "bad probes" (ie badAvgbeta)
+
+```{r CARE_Tissue_probeRemoval, echo=FALSE}
+badProbes <- rowSums(badAvgbeta)>=1
+sum(badProbes)# badProbes = 7223
+Allen.filtered <- Allen.filtered[!badProbes,] 
+dim(Allen.filtered) # probes = 466641, n = 177
+```
+
+
+##### Cross-hybridizing probes
+
+Some probes have been found to cross-hybridize with other chromosomes (Price et al. 2013 *Epigenetics*).  It is at the discretion of the user whether or not they want to remove these cross-hybridizing probes, since it isn't a guarantee that they will cross-hybridize every time the experiment is run.  Probes that cross-hybridize to the sex chromosomes are typically removed, as they run a higher risk of confounding the data than probes that cross-hybridize to autosomal chromosomes.  
+
+**snp_index** is a list of which probes do not contain SNPs. It is derived from fData(Priest.filtered)$n_SNPCpG, which is a matrix of how many SNPs are possible for that probe; if there's an NA that is good, because that means there's no SNP in that probe.  We then filter Allen data, taking only the probes that were listed in **snp index**. We also remove probes which bind multiple locations in the genome as long as one of the locations is on the XY chromosome. The reason for this is as the X and Y chromosomes are not balanced amongst our samples (males vs females) we have to remove all probes which bind them so as to not skew the normalization. We do not remove multiple binders of probes which bind at various sites only in the autosomal chromosomal regions because they will most likely not skew our normalization and when we obtain our "hit list" we will verify them using pyrosequencing in order to determine if the specific site of interest is providing the signal we are seeing.
+
+```{r CARE_Tissue_xHybrid, echo=FALSE}
+dim(Priest.filtered<-Priest[featureNames(Priest)%in%rownames(Allen.filtered),])
+snp_index <- which(is.na(fData(Priest.filtered)$n_SNPCpG))
+(n.polymorphic.probes<-(length(featureNames(Priest.filtered))-length(snp_index))) # 19252 polymorphic probes
+Allen.filtered <- Allen.filtered[snp_index, ] 
+dim(Allen.filtered) # probes = 447389, n = 177
+
+dim(Priest.filtered<-Priest.filtered[featureNames(Priest.filtered)%in%rownames(Allen.filtered),])
+xy_hit_index <- which(fData(Priest.filtered)$XY_Hits == "XY_NO")
+(n.XYcrosshybrid.probes<-(length(featureNames(Priest.filtered))-length(xy_hit_index))) # 10,537 cross-hybridizing XY probes
+Allen.filtered <- Allen.filtered[xy_hit_index, ] 
+dim(Allen.filtered) # probes = 436852, n = 177
+save(Allen.filtered, file = "Allen_Human_Developing_Brain_450K_Filtered_Data.RData")
+```
+
+### Summary table of probe filtering processes:
+Here is a table summarizing our probe filtering and pre-processing steps undertaken so far:
+
+```{r echo=FALSE}
+Filtered <- matrix(c("485,577", "177","Starting Probes", "485,512", "44","SNP Probes (65)", "473,864", "177","XY Probes (11,648)", "466,641", "177","Bad AvgBeta Probes (7223)","447,389","177","Polymorphic Probes(19,252)", "436,852", "177","XY Cross-hybridizing (10,537)", "436,852", "177", "Final Filtered Dataset"),ncol=3,byrow=TRUE)
+colnames(Filtered) <- c("Probes","Samples","Filtering")
+Filtered <- as.table(Filtered)
+```
+
+```{r}
+# let's look at methylation values (M-values)
+Mvalues<-exprs(Priest)
+head(Mvalues)
+dim(Mvalues)
+
+# let's look at fData (probe annotations)
+fDat<-fData(Priest)
+dim(fDat)
+head(fDat)
+
+# let's look at pData (sample info)
+pDat<-pData(Priest)
+dim(pDat)
+head(pDat)
+```
+

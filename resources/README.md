@@ -1,0 +1,1 @@
+This folder contains 450k analysis scripts used by Samantha Schaffner for previous brain methylation analysis and originally written by Sumaiya Islam, a PhD student in the Kobor Lab. With her permission, these scripts will be adapted for use in our project.

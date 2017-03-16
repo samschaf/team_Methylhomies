@@ -1,0 +1,192 @@
+Allen Developing Human Brain 450K Data Normalization
+========================================================
+## By: Sumaiya Islam
+## Date updated: August 10, 2016
+  
+### Script contents:
+  - detection and correction for technical batch variation using PCA and ComBat, respectively, of post-mortem human brain samples analyzed by Illumina HM450K platform from Allen Brain Institute (http://download.alleninstitute.org/brainspan/Methylation/). 
+   
+### A. Set up working directory & packages
+
+R version 3.2.3 (2015-12-10)
+
+We will initially set our working directory and load our libraries.
+
+```{r,include=FALSE}
+library(reshape)
+library(ggplot2)
+library(RColorBrewer)
+library(grid)
+library(gridExtra)
+library(sva)
+library(rama)
+library(methylumi)
+library(gplots)
+library(marray)
+library(lumi)
+library(lattice)
+library("RColorBrewer")
+library(knitr)
+library(xtable)
+library(wateRmelon)
+library(limma)
+library(sva)
+library(RPMM)
+```
+
+## Heat scree plot Function
+```{r}
+### Function of association meta variable with PC (ANOVA)
+heat_scree_plot<-function(Loadings, Importance, Num, Order){
+  adjust<-1-Importance[1]
+  pca_adjusted<-Importance[2:length(Importance)]/adjust
+  pca_df<-data.frame(adjusted_variance=pca_adjusted, PC=seq(1:length(pca_adjusted)))
+  
+  scree<-ggplot(pca_df[which(pca_df$PC<Num),],aes(PC,adjusted_variance))+geom_bar(stat = "identity",color="black",fill="grey")+theme_bw()+
+        theme(axis.text = element_text(size =12),
+              axis.title = element_text(size =15),
+              plot.margin=unit(c(1,1.5,0.2,2.25),"cm"))+ylab("Variance")+
+    scale_x_continuous(breaks = seq(1,Num,1))
+  
+  #### Heat
+  ## correlate meta with PCS
+  ## Run anova of each PC on each meta data variable
+
+  aov_PC_meta<-lapply(1:ncol(meta_categorical), function(covar) sapply(1:ncol(Loadings), function(PC) summary(aov(Loadings[,PC]~meta_categorical[,covar]))[[1]]$"Pr(>F)"[1]))
+  cor_PC_meta<-lapply(1:ncol(meta_continuous), function(covar) sapply(1:ncol(Loadings), function(PC) (cor.test(Loadings[,PC],as.numeric(meta_continuous[,covar]),alternative = "two.sided", method="spearman", na.action=na.omit, exact=FALSE)$p.value)))
+  names(aov_PC_meta)<-colnames(meta_categorical)
+  names(cor_PC_meta)<-colnames(meta_continuous)
+  aov_PC_meta<-do.call(rbind, aov_PC_meta)
+  cor_PC_meta<-do.call(rbind, cor_PC_meta)
+ aov_PC_meta<-rbind(aov_PC_meta, cor_PC_meta)
+  aov_PC_meta<-as.data.frame(aov_PC_meta)
+  #adjust
+  aov_PC_meta_adjust<-aov_PC_meta[,2:ncol(aov_PC_meta)]
+  
+    
+  #reshape
+  avo<-aov_PC_meta_adjust[,1:(Num-1)]
+  avo_heat_num<-apply(avo,2, as.numeric)
+  avo_heat<-as.data.frame(avo_heat_num)
+  colnames(avo_heat)<-sapply(1:(Num-1), function(x) paste("PC",x, sep=""))
+  avo_heat$meta<-rownames(avo)
+  avo_heat_melt<-melt(avo_heat, id=c("meta"))
+  
+  # cluster meta data
+  ord <- Order
+  meta_var_order<-unique(avo_heat_melt$meta)[rev(ord)]
+  avo_heat_melt$meta <- factor(avo_heat_melt$meta, levels = meta_var_order)
+  
+  # color if sig
+   avo_heat_melt$Pvalue<-sapply(1:nrow(avo_heat_melt), function(x) if(avo_heat_melt$value[x]>=0.9){">=0.9"}else{
+    if(avo_heat_melt$value[x]>=0.5){">=0.5"}else{
+      if(avo_heat_melt$value[x]>=0.1){">=0.1"}else{"<0.1"}}})
+  avo_heat_melt$Pvalue<-sapply(1:nrow(avo_heat_melt), function(x) if(avo_heat_melt$value[x]<=0.001){"<=0.001"}else{
+     if(avo_heat_melt$value[x]<=0.01){"<=0.01"}else{
+       if(avo_heat_melt$value[x]<=0.05){"<=0.05"}else{">0.05"}}})
+  
+  heat<-ggplot(avo_heat_melt, aes(variable,meta, fill = Pvalue)) +
+  geom_tile(color = "black",size=0.5) +
+  theme_gray(8)+scale_fill_manual(values=c("#084594","#4292c6","#9ecae1","#deebf7"))+
+      theme(axis.text = element_text(size =10, color="black"),
+            axis.text.x = element_text(),
+          axis.title = element_text(size =15),
+          legend.text = element_text(size =14),
+          legend.title = element_text(size =12),
+          legend.position = c(1, 0), legend.justification = c(1,0),
+          plot.margin=unit(c(0,2.25,1,1),"cm"))+
+    xlab("Principal Component")+ylab(NULL)
+  
+  grid.arrange(scree, heat, ncol=1)
+}
+```
+
+
+### B. Load files
+
+#### We will be analyzing the normalized Allen Brain datasets
+
+```{r}
+
+load("Allen_brain_BMIQ.RData") # normalized beta values
+load("Allen_Dev_Brain_450K_Corrected.RData") # cell-type corrected beta values
+load("Allen_Human_Developing_Brain_450K_Meta_Data.RData") # associated meta data
+cell.proportions<-read.csv("Allen_CETS_Neuronal_Glia_Proportions.csv", header=TRUE, row.names=1) # predicted neuron and glial cell proportions based on CETS
+head(cell.proportions)
+
+# check for NAs in data
+ind<-is.row.na(Allen_brain_BMIQ) # The function returns a vector of logical variables, one for each row of the matrix. The variable is TRUE if the row does not contain any missing values and FAlSE otherwise.
+length(na.count<-which(ind=="FALSE")) # 0 (there are no rows that contain a NA in the raw data)
+
+
+uncor.dat<-Allen_brain_BMIQ
+cor.dat<-Allen.cell.corrected
+meta<-Allen.Dev.Brain.meta.fin
+identical(rownames(cell.proportions), as.character(meta$Sample_ID)) # TRUE
+meta$Neuron<-as.numeric(cell.proportions$neuron)
+meta$Glia<-as.numeric(cell.proportions$glia)
+str(meta)
+```
+
+
+## PCA Scree Heatmap for uncorrected data
+
+```{r warning=FALSE, fig.height=9, fig.width=11}
+## PCA
+PCA_full<-princomp(uncor.dat[complete.cases(uncor.dat),]) # scaling is not necessary for normalized dataset
+Loadings<-as.data.frame(unclass(PCA_full$loadings))
+vars <- PCA_full$sdev^2
+Importance<-vars/sum(vars)
+adjust<-1-Importance[1]
+pca_adjusted<-Importance[2:length(Importance)]/adjust
+(pca_df<-data.frame(adjusted_variance=pca_adjusted, PC=seq(1:length(pca_adjusted))))
+
+
+#Specify which covariates are categorical and/or categorical
+colnames(meta)
+meta_categorical<-meta[,c("Plate", "Sentrix_ID", "Row", "Brain_Region")]  # input column numbers in meta that contain categorical variables
+meta_continuous<-meta[,c("Neuron", "Age_Months")] # input column numbers in meta that contain continuous variables
+meta_continuous<-data.frame(meta_continuous)
+
+# Specify the number of PCs you want shown (usually # of samples in the dataset)
+Num<-20
+
+# Designate what order you want the variables to appear (continuous variables rbinded to categorical variables in function)
+Order<-c(4,5,6,3,2,1)
+
+#Apply function on PCA results, pulls in the meta data and beta values from above
+heat_scree_plot(Loadings, Importance, Num, Order)
+```
+
+
+We can observe that there are some significant Batch, Chip and Row effects that I will attempt to correct. However, they occur in the same PCs as Brain_Region and Age_Months making it difficult to ComBat correct---will seek help from the group on this. 
+
+## PCA Scree Heatmap for normalized data
+
+```{r warning=FALSE, fig.height=9, fig.width=11}
+## PCA
+PCA_full<-princomp(cor.dat[complete.cases(cor.dat),]) # scaling is not necessary for normalized dataset
+Loadings<-as.data.frame(unclass(PCA_full$loadings))
+vars <- PCA_full$sdev^2
+Importance<-vars/sum(vars)
+adjust<-1-Importance[1]
+pca_adjusted<-Importance[2:length(Importance)]/adjust
+(pca_df<-data.frame(adjusted_variance=pca_adjusted, PC=seq(1:length(pca_adjusted))))
+
+
+#Specify which covariates are categorical and/or categorical
+colnames(meta)
+meta_categorical<-meta[,c("Plate", "Sentrix_ID", "Row", "Brain_Region")]  # input column numbers in meta that contain categorical variables
+meta_continuous<-meta[,c("Neuron", "Age_Months")] # input column numbers in meta that contain continuous variables
+# meta_continuous<-data.frame(meta_continuous)
+
+# Specify the number of PCs you want shown (usually # of samples in the dataset)
+Num<-20
+
+# Designate what order you want the variables to appear (continuous variables rbinded to categorical variables in function)
+Order<-c(4,5,6,3,2,1)
+
+#Apply function on PCA results, pulls in the meta data and beta values from above
+heat_scree_plot(Loadings, Importance, Num, Order)
+```
+
