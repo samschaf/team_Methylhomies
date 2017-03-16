@@ -1,0 +1,43 @@
+---
+title: "Create brain only data"
+author: "Cassia Warren"
+date: "March 11, 2017"
+output: html_document
+---
+
+```{r }
+
+load("/Volumes/Lexar 1/Meta_matched_GSE59685.RData")
+
+load("/Volumes/Lexar 1/GSE59685_filtered.RData")
+
+entorhinal <- Meta_matched[which(Meta_matched$Tissue=='entorhinal cortex'),]
+frontal <- Meta_matched[which(Meta_matched$Tissue=='frontal cortex'),]
+superior <- Meta_matched[which(Meta_matched$Tissue=='superior temporal gyrus'),] 
+cerebellum <- Meta_matched[which(Meta_matched$Tissue=='cerebellum'),] 
+
+Meta_matched_brain  <- rbind(entorhinal, frontal, superior,cerebellum) # meta data with only brain regions 
+  
+include <- Meta_matched_brain$gsm 
+
+tran <- t(GSE59685_filtered)
+
+no.bl <- tran[include, ] #subset data to only have brain samples
+
+no.bll <- as.data.frame(no.bl)
+
+data.nob <- t(no.bll)
+
+GSE59685_filtered_brain <- as.data.frame(data.nob) # brain only data in proper form
+
+write.table(GSE59685_filtered_brain,"/Volumes/Lexar 1/GSE59685_filtered_brain.txt")
+
+write.table(Meta_matched_brain,"/Volumes/Lexar 1/Meta_matched_brain.txt")
+
+table(Meta_matched_brain$ad.disease.status)
+
+table(Meta_matched_brain$ad.disease.status, Meta_matched_brain$Subject)
+
+
+```
+
