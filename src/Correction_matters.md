@@ -160,5 +160,35 @@ plotfunction(meta_probes_meled[meta_probes_meled$variable== "cg20745248",] )
 
 ![](Correction_matters_files/figure-html/more-3.png)<!-- -->
 
-Quantify the differences in methylation between groups
-- do for each probe? 
+DO we like violine or box?
+
+```r
+plotfunction2 <- function(n)
+{
+  ggplot(n, aes(factor(Tissue),value)) +
+    geom_boxplot(aes(col = Tissue)) +
+   facet_wrap(~Data.set) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Tissue") +
+  ylab("Methylation") +
+  labs(title = paste0("Methylation values for probe ", n$variable))
+  
+}
+
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg06607866",] )
+```
+
+![](Correction_matters_files/figure-html/boxes-1.png)<!-- -->
+
+```r
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg03435979",] )
+```
+
+![](Correction_matters_files/figure-html/boxes-2.png)<!-- -->
+
+```r
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg20745248",] )
+```
+
+![](Correction_matters_files/figure-html/boxes-3.png)<!-- -->
+

@@ -146,7 +146,26 @@ plotfunction(meta_probes_meled[meta_probes_meled$variable== "cg06607866",] )
 plotfunction(meta_probes_meled[meta_probes_meled$variable== "cg03435979",] )
 plotfunction(meta_probes_meled[meta_probes_meled$variable== "cg20745248",] )
 
+```
 
+DO we like violine or box?
+```{r boxes}
+
+plotfunction2 <- function(n)
+{
+  ggplot(n, aes(factor(Tissue),value)) +
+    geom_boxplot(aes(col = Tissue)) +
+   facet_wrap(~Data.set) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  xlab("Tissue") +
+  ylab("Methylation") +
+  labs(title = paste0("Methylation values for probe ", n$variable))
+  
+}
+
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg06607866",] )
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg03435979",] )
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg20745248",] )
 
 ```
 
