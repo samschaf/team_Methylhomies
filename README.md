@@ -3,7 +3,7 @@
 
 Welcome to our group Repository!
 
-Keep up with the steps we are working on by checking out our processed data folder [readme](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/data/processed_data)
+**UPDATES** Keep up with the steps we are working on by checking out our processed data folder [readme](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/data/processed_data)
 
 We aim to study the differences in methylation between cerebellum and cortex. For more information on our project please visit our project proposal [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)
 
