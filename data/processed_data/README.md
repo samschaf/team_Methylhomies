@@ -1,7 +1,7 @@
 
 This folder contains the steps and scripts used for processing the metadata and beta values 
 
-[Downloading the Data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Acquiring%20GEO%20meta%20data.Rmd)
+Steps after [downloading the Data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Acquiring%20GEO%20meta%20data.Rmd)
 
 
 
@@ -18,5 +18,5 @@ Step 3
 - Rearrange data so all data sets have same order - here() #add this
 
 Step 4
-- Plot and determine if the differences between corrected and uncorrected matter - [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.md) and [here]() # add lisas work
+- Plot and determine if the differences between corrected and uncorrected matter - [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.md) and [here]( # add lisas work
 
