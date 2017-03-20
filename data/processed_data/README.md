@@ -19,7 +19,11 @@ Step 3
 
 Step 4
 - Plot and determine if the differences between corrected and uncorrected matter 
+
+
 [Generating data with samples sorted by brain region](analysis_script_v2.Rmd) 
+
+
 [broad expression and correlation heatmaps, methylation levels of probes generated for corrected and uncorrected data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.md) 
 
 
