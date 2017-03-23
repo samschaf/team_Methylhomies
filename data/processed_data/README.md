@@ -26,4 +26,6 @@ Step 4
 
 [broad expression and correlation heatmaps, methylation levels of probes generated for corrected and uncorrected data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.md) 
 
+**NEW** [Generating data with samples sorted by brain region on the new corrected data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.2.md)
+
 
