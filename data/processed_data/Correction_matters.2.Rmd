@@ -37,7 +37,7 @@ library(lattice)
 ```
 
 **Load the data and check that the columns are in the same order**
-This is the data that lisa has already rearranged 
+
 ```{r load}
 
 load("/Volumes/Lexar/New corrected/GSE43414_batch_cor.RData")
@@ -200,9 +200,12 @@ plotfunction2 <- function(n)
 plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
 plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09766628",] )
 plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg15821319",] )
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09654300",] )
+plotfunction2()
 
 ```
 
+cg20745248
 Box plots, combine cortexes but keep seperated
 
 ```{r b2}
@@ -221,6 +224,7 @@ plotfunction3<- function(n)
 
 
 plotfunction3(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
+plotfunction3(meta_probes_meled[meta_probes_meled$variable== "cg06528575",] )
 
 ```
 
@@ -239,6 +243,8 @@ plotfunction4<- function(n)
 }
 
 plotfunction4(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
+plotfunction4(meta_probes_meled[meta_probes_meled$variable== "cg14813579",] )
+
 
 ```
 
@@ -250,21 +256,6 @@ sup cg01156747, cg08835221, cg06242242. cg20636526, cg12362118
 _____
 treat normalization like a treatment and do linear regression between the two?
 
-Differential expression with respect to normalization
-```{r lin}
-des2 <- model.matrix(~Data.set, meta_probes_meled)
+D
 
-fitted <- lmFit(NHBE, des2)
-fitted2 <- eBayes(fitted)
-
-hits2 <- topTable(fitted2, coef = grep("time", colnames(coef(fitted2))), adjust.method = "fdr", n= Inf)
-
-# look at probes in time group with p value 1e-3
-all.tt <- topTable(fit2, coef= "Control.Treatment", adjust.method = "fdr", n= Inf)
-
-#plot p values vs count
-
-hist(hits2$P.Value) 
-
-```
-
+QN, QN + cell corrected, QN + BMIQ, QN + BMIQ + cell type
