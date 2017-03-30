@@ -5,6 +5,8 @@ date: "March 29, 2017"
 output: html_document
 ---
 
+REPEAT with the dasen and the BMIQ data (you will have to change the name of the data sets within the code) This code is with the BMIQ data 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -49,8 +51,18 @@ load("/Volumes/Lexar/New corrected/Meta_batch_cor.RData")
 
 ```
 
+Remove Braak stage exludes and NAs
+
+```{r remove}
+meta2 <- na.omit(meta) #remove NA
+meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
+
+
+
+```
+
 Lisas code to rearrange
-^^ repeat with the Dasen normalized data and the New BMIQ data
+
 ```{r rea}
 
 ## add another broad region column
@@ -92,7 +104,7 @@ identical(colnames(GSE43414_cell_cor_sorted_by_brain_regions),as.character(meta_
 ```
 
 
-PLOTS _ repeat with both data sets (change "GSE43414" for the data set names to the other data set name)
+PLOTS _ change "GSE43414" for the data set names to the other data set name)
 ```{r plots}
 
 # make lables

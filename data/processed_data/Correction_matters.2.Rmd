@@ -50,6 +50,17 @@ load("/Volumes/Lexar/New corrected/Meta_batch_cor.RData")
 
 ```
 
+Remove Braak stage exludes and NAs
+```{r remove}
+meta2 <- na.omit(meta) #remove NA
+meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
+
+
+
+```
+
+
+
 Lisas code to rearrange
 ```{r rea}
 

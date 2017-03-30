@@ -4,7 +4,7 @@ author: "Cassia Warren"
 date: "March 29, 2017"
 output: html_document
 ---
-
+REPEAT with the dasen and the BMIQ data (you will have to change the name of the data sets within the code) This code is with the BMIQ data 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -37,7 +37,7 @@ library(lattice)
 
 
 **Load the data and check that the columns are in the same order**
-^^ repeat with the Dasen normalized data and the New BMIQ data
+
 
 ```{r load}
 
@@ -49,8 +49,18 @@ load("/Volumes/Lexar/New corrected/Meta_batch_cor.RData")
 
 ```
 
+Remove Braak stage exludes and NAs
+
+```{r remove}
+meta2 <- na.omit(meta) #remove NA
+meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
+
+
+
+```
+
 Lisas code to rearrange
-^^ repeat with the Dasen normalized data and the New BMIQ data
+
 ```{r rea}
 
 ## add another broad region column
@@ -115,7 +125,7 @@ aheatmap(GSE43414_cell_cor_sorted_by_brain_regions, annCol = list(Brain_Region =
 
 
 **Want to see what thier expression is and if it changes between corrected and non corercted data sets. **
-Repeat with both data sets
+
 ```{r graph}
 
 # create a combined data set
@@ -125,7 +135,7 @@ cell_sub <- GSE43414_cell_cor_sorted_by_brain_regions
 
 ```
 
-Repeat with both data sets
+
 ```{r correlation}
 #sample to sample correlations based on brain region
 
