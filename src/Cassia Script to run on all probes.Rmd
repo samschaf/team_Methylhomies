@@ -1,0 +1,146 @@
+---
+title: "SCRIPT for Hilary to run on all probes"
+author: "Cassia Warren"
+date: "March 29, 2017"
+output: html_document
+---
+REPEAT with the dasen and the BMIQ data (you will have to change the name of the data sets within the code) This code is with the BMIQ data 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("limma")
+#biocLite("edgeR")
+#install.packages('dplyr')
+#biocLite("ComplexHeatmap")
+#biocLite("gplots")
+#install.packages(NMF)
+#biocLite("yeast2.db")
+#install.packages('VennDiagram')
+library(VennDiagram)
+library(yeast2.db) 	
+library(limma)
+library(edgeR)
+library(ComplexHeatmap)
+library(ggplot2)
+library(reshape2)
+library(tidyverse)
+library(mvtnorm)
+library(gplots)
+library(gridExtra)
+library(plyr)
+library(dplyr)
+library(NMF)
+library(lattice)
+```
+
+
+**Load the data and check that the columns are in the same order**
+
+
+```{r load}
+
+load("/Volumes/Lexar/New corrected/GSE43414_batch_cor.RData")
+
+load("/Volumes/Lexar/New corrected/GSE43414_cell_cor.RData")
+
+load("/Volumes/Lexar/New corrected/Meta_batch_cor.RData")
+
+```
+
+Remove Braak stage exludes and NAs
+
+```{r remove}
+meta2 <- na.omit(meta) #remove NA
+meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
+
+
+
+```
+
+Lisas code to rearrange
+
+```{r rea}
+
+## add another broad region column
+meta$broad_regions <- ifelse(meta$Tissue == "cerebellum", "cerebellum","cortex")
+meta$tissue_color <- lapply(meta$Tissue,function(x){
+  if (x == "cerebellum") {y <- "red"}
+  if (x == "frontal cortex") {y <- "blue"}
+  if (x == "superior temporal gyrus") {y <- "orange"}
+  if (x == "entorhinal cortex") {y <- "yellow"}
+  y
+  })
+
+meta$broad_colors <- lapply(meta$broad_regions,function(x){
+  if (x == "cerebellum") {y <- "red"}
+  if (x == "cortex") {y <- "blue"}
+  y
+})
+
+## transpose data such that probe names are colnames, and rows are patient samples
+transpose_GSE43414_cell_cor <- t(GSE43414_cell_cor)
+## order metadata by brain region
+#data has barcode NOT gsm as column names
+meta_order_by_brain_regions <- meta %>% arrange(Tissue)
+matches_GSE43414_cell_cor <- match(meta_order_by_brain_regions$barcode, rownames(transpose_GSE43414_cell_cor))
+
+GSE43414_cell_cor_sorted_by_brain_regions <- t(transpose_GSE43414_cell_cor[matches_GSE43414_cell_cor,])
+#repeat for batch
+
+transpose_GSE43414_batch_cor <- t(GSE43414_batch_cor)
+## order metadata by brain region
+GSE43414_batch_cor_sorted_by_brain_regions <- t(transpose_GSE43414_batch_cor[matches_GSE43414_cell_cor,])
+
+#Check for identical 
+identical(colnames(GSE43414_batch_cor_sorted_by_brain_regions),colnames(GSE43414_cell_cor_sorted_by_brain_regions)) # TRUE
+
+identical(colnames(GSE43414_cell_cor_sorted_by_brain_regions),as.character(meta_order_by_brain_regions$barcode)) #TRUE
+
+
+```
+
+
+PLOTS _ repeat with both data sets (change "GSE43414" for the data set names to the other data set name)
+```{r plots}
+
+# make lables
+brain_regions <- meta_order_by_brain_regions$broad_regions
+tissue <- meta_order_by_brain_regions$Tissue
+breaksList <- seq(0.85, 1, by = .03)
+
+# no sample rearange
+aheatmap(GSE43414_batch_cor_sorted_by_brain_regions, Colv = NA, annCol = list(Brain_Region = brain_regions, Tissue = tissue), breaks = breaksList, color = "rainbow", main =  "Uncorrected heatmap")
+
+#dendogram of samples
+aheatmap(GSE43414_batch_cor_sorted_by_brain_regions, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap")
+
+# no sample rearange
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions, Colv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
+
+#dendogram of samples
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions , annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
+
+```
+
+
+**Want to see what thier expression is and if it changes between corrected and non corercted data sets. **
+
+```{r graph}
+
+# create a combined data set
+batch_sub <- GSE43414_batch_cor_sorted_by_brain_regions
+
+cell_sub <- GSE43414_cell_cor_sorted_by_brain_regions
+
+```
+
+
+```{r correlation}
+#sample to sample correlations based on brain region
+
+
+aheatmap(cor(batch_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue),main = "uncorrected sample to sample correlation of 100 probes")
+
+aheatmap(cor(cell_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue), main = "corrected sample to sample correlation of 100 probes")

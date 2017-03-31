@@ -1,0 +1,184 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+Hannon et al. (2017) 450K Data Principal Component Analysis
+========================================================
+## Original author: Sumaiya Islam
+## Updated by: Samantha Schaffner
+## Date updated: March 10, 2017
+  
+### Script contents:
+  - detection and correction for technical batch variation using PCA and ComBat, respectively, of post-mortem human brain samples analyzed by Illumina HM450K platform from Jonathan Mill's research group (PMC4844197). 
+   
+### A. Set up working directory & packages
+
+R version 3.2.3 (2015-12-10)
+
+We will initially set our working directory and load our libraries.
+
+```{r,include=FALSE}
+library(reshape)
+library(ggplot2)
+library(RColorBrewer)
+library(grid)
+library(gridExtra)
+library(sva)
+library(rama)
+library(methylumi)
+library(gplots)
+library(marray)
+library(lumi)
+library(lattice)
+library("RColorBrewer")
+library(knitr)
+library(xtable)
+library(wateRmelon)
+library(limma)
+library(sva)
+library(RPMM)
+library(dplyr)
+```
+
+## Heat scree plot Function
+```{r}
+### Function of association meta variable with PC (ANOVA)
+heat_scree_plot<-function(Loadings, Importance, Num, Order){
+  adjust<-1-Importance[1]
+  pca_adjusted<-Importance[2:length(Importance)]/adjust
+  pca_df<-data.frame(adjusted_variance=pca_adjusted, PC=seq(1:length(pca_adjusted)))
+  
+  scree<-ggplot(pca_df[which(pca_df$PC<Num),],aes(PC,adjusted_variance))+geom_bar(stat = "identity",color="black",fill="grey")+theme_bw()+
+        theme(axis.text = element_text(size =12),
+              axis.title = element_text(size =15),
+              plot.margin=unit(c(1,1.5,0.2,2.25),"cm"))+ylab("Variance")+
+    scale_x_continuous(breaks = seq(1,Num,1))
+  
+  #### Heat
+  ## correlate meta with PCS
+  ## Run anova of each PC on each meta data variable
+
+  aov_PC_meta<-lapply(1:ncol(meta_categorical), function(covar) sapply(1:ncol(Loadings), function(PC) summary(aov(Loadings[,PC]~meta_categorical[,covar]))[[1]]$"Pr(>F)"[1]))
+  cor_PC_meta<-lapply(1:ncol(meta_continuous), function(covar) sapply(1:ncol(Loadings), function(PC) (cor.test(Loadings[,PC],as.numeric(meta_continuous[,covar]),alternative = "two.sided", method="spearman", na.action=na.omit, exact=FALSE)$p.value)))
+  names(aov_PC_meta)<-colnames(meta_categorical)
+  names(cor_PC_meta)<-colnames(meta_continuous)
+  aov_PC_meta<-do.call(rbind, aov_PC_meta)
+  cor_PC_meta<-do.call(rbind, cor_PC_meta)
+ aov_PC_meta<-rbind(aov_PC_meta, cor_PC_meta)
+  aov_PC_meta<-as.data.frame(aov_PC_meta)
+  #adjust
+  aov_PC_meta_adjust<-aov_PC_meta[,2:ncol(aov_PC_meta)]
+  
+    
+  #reshape
+  avo<-aov_PC_meta_adjust[,1:(Num-1)]
+  avo_heat_num<-apply(avo,2, as.numeric)
+  avo_heat<-as.data.frame(avo_heat_num)
+  colnames(avo_heat)<-sapply(1:(Num-1), function(x) paste("PC",x, sep=""))
+  avo_heat$meta<-rownames(avo)
+  avo_heat_melt<-melt(avo_heat, id=c("meta"))
+  
+  # cluster meta data
+  ord <- Order
+  meta_var_order<-unique(avo_heat_melt$meta)[rev(ord)]
+  avo_heat_melt$meta <- factor(avo_heat_melt$meta, levels = meta_var_order)
+  
+  # color if sig
+   avo_heat_melt$Pvalue<-sapply(1:nrow(avo_heat_melt), function(x) if(avo_heat_melt$value[x]>=0.9){">=0.9"}else{
+    if(avo_heat_melt$value[x]>=0.5){">=0.5"}else{
+      if(avo_heat_melt$value[x]>=0.1){">=0.1"}else{"<0.1"}}})
+  avo_heat_melt$Pvalue<-sapply(1:nrow(avo_heat_melt), function(x) if(avo_heat_melt$value[x]<=0.001){"<=0.001"}else{
+     if(avo_heat_melt$value[x]<=0.01){"<=0.01"}else{
+       if(avo_heat_melt$value[x]<=0.05){"<=0.05"}else{">0.05"}}})
+  
+  heat<-ggplot(avo_heat_melt, aes(variable,meta, fill = Pvalue)) +
+  geom_tile(color = "black",size=0.5) +
+  theme_gray(8)+scale_fill_manual(values=c("#084594","#4292c6","#9ecae1","#deebf7"))+
+      theme(axis.text = element_text(size =10, color="black"),
+            axis.text.x = element_text(),
+          axis.title = element_text(size =15),
+          legend.text = element_text(size =14),
+          legend.title = element_text(size =12),
+          legend.position = c(1, 0), legend.justification = c(1,0),
+          plot.margin=unit(c(0,2.25,1,1),"cm"))+
+    xlab("Principal Component")+ylab(NULL)
+  
+  grid.arrange(scree, heat, ncol=1)
+}
+```
+
+
+### B. Load files
+
+#### We will be analyzing the normalized and filtered Hannon et al. dataset
+
+```{r}
+
+load("GSE59685_filtered.RData") # normalized beta values
+#load("Allen_Dev_Brain_450K_Corrected.RData") # cell-type corrected beta values
+load("Meta_matched_GSE59685.RData") # associated meta data
+cell.proportions<-read.csv("Hannon_Neuronal_Glia_Proportions.csv", header=TRUE, row.names=1) # predicted neuron and glial cell proportions based on CETS
+head(cell.proportions)
+
+# check for NAs in data
+GSE59685_filtered <- as.matrix(GSE59685_filtered)
+ind<-is.row.na(GSE59685_filtered) # The function returns a vector of logical variables, one for each row of the matrix. The variable is TRUE if the row does not contain any missing values and FAlSE otherwise.
+length(na.count<-which(ind=="FALSE")) # 0 (there are no rows that contain a NA in the raw data)
+
+
+uncor.dat<-GSE59685_filtered
+#cor.dat<-Allen.cell.corrected
+meta<-Meta_matched
+
+meta<- meta %>% arrange(gsm)
+cell.proportions$gsm <- rownames(cell.proportions)
+cell.proportions<- cell.proportions %>% arrange(gsm)
+
+#Add cell propotion information to meta data
+identical(cell.proportions$gsm, meta$gsm) # TRUE
+meta$Neuron<-as.numeric(cell.proportions$neuron)
+meta$Glia<-as.numeric(cell.proportions$glia)
+
+#Add row and chip information to metadata; this can be found in the sample barcodes
+barcodes <- read.csv("GSE59685_SampleBarcode_Re-analyzedGSMs_NewGSMs.txt.gz", sep="\t")
+barcodes <- barcodes %>% arrange(NEW_GSMs)
+for (i in 1:nrow(meta)){
+  meta$chip[i]<-paste(substr(barcodes[i,"Sample_Barcode"], start=1, stop=10))
+  meta$row[i]<-paste(substr(barcodes[i,"Sample_Barcode"], start=14, stop=14))
+}
+meta$age.brain <- as.numeric(meta$age.brain)
+str(meta)
+save(meta, file="Meta_updated.RData")
+```
+
+
+## PCA Scree Heatmap for uncorrected data
+
+```{r warning=FALSE, fig.height=9, fig.width=11}
+## PCA
+PCA_full<-princomp(uncor.dat[complete.cases(uncor.dat),]) # scaling is not necessary for normalized dataset
+Loadings<-as.data.frame(unclass(PCA_full$loadings))
+vars <- PCA_full$sdev^2
+Importance<-vars/sum(vars)
+adjust<-1-Importance[1]
+pca_adjusted<-Importance[2:length(Importance)]/adjust
+pca_df<-data.frame(adjusted_variance=pca_adjusted, PC=seq(1:length(pca_adjusted)))
+
+#Specify which covariates are categorical and/or categorical
+colnames(meta)
+meta_categorical<-meta[,c("ad.disease.status", "braak.stage", "Sex", "Tissue", "chip", "row")]  # input column numbers in meta that contain categorical variables
+meta_continuous<-meta[,c("age.brain", "Neuron")] # input column numbers in meta that contain continuous variables
+#meta_continuous<-data.frame(meta_continuous)
+
+# Specify the number of PCs you want shown (usually # of samples in the dataset)
+Num<-20
+
+# Designate what order you want the variables to appear (continuous variables rbinded to categorical variables in function)
+Order<-c(4,8,7,3,1,2,5,6)
+
+#Apply function on PCA results, pulls in the meta data and beta values from above
+heat_scree_plot(Loadings, Importance, Num, Order)
+```
+
+Alzheimer's Disease status and Braak Stage seem to be the most significant contributors to DNA methylation variance, followed by age. Neuron and Chip also have a small effect. AD status, Braak Stage, and age will be used as covariates in a linear regression model, while the chip effect will be batch-corrected using ComBat. 

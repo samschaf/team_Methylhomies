@@ -1,69 +1,32 @@
----
-title: "correction Matters"
-author: "Cassia Warren"
-date: "March 16, 2017"
-output: 
-  html_document: 
-    toc: yes
-    keep_md: TRUE
----
+# correction Matters
+Cassia Warren  
+March 16, 2017  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("limma")
-#biocLite("edgeR")
-#install.packages('dplyr')
-#biocLite("ComplexHeatmap")
-#biocLite("gplots")
-#install.packages(NMF)
-#biocLite("yeast2.db")
-#install.packages('VennDiagram')
-library(VennDiagram)
-library(yeast2.db) 	
-library(limma)
-library(edgeR)
-library(ComplexHeatmap)
-library(ggplot2)
-library(reshape2)
-library(tidyverse)
-library(mvtnorm)
-library(gplots)
-library(gridExtra)
-library(plyr)
-library(dplyr)
-library(NMF)
-library(lattice)
-```
+
 
 **Load the data and check that the columns are in the same order**
 
-```{r load}
 
+```r
 load("/Volumes/Lexar/New corrected/GSE43414_batch_cor.RData")
 
 load("/Volumes/Lexar/New corrected/GSE43414_cell_cor.RData")
 
 load("/Volumes/Lexar/New corrected/Meta_batch_cor.RData")
-
-
-
 ```
 
 Remove Braak stage exludes and NAs
-```{r remove}
+
+```r
 meta2 <- na.omit(meta) #remove NA
 meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
-
-
-
 ```
 
 
 
 Lisas code to rearrange
-```{r rea}
 
+```r
 ## add another broad region column
 meta$broad_regions <- ifelse(meta$Tissue == "cerebellum", "cerebellum","cortex")
 meta$tissue_color <- lapply(meta$Tissue,function(x){
@@ -96,13 +59,23 @@ GSE43414_batch_cor_sorted_by_brain_regions <- t(transpose_GSE43414_batch_cor[mat
 
 #Check for identical 
 identical(colnames(GSE43414_batch_cor_sorted_by_brain_regions),colnames(GSE43414_cell_cor_sorted_by_brain_regions)) # TRUE
+```
 
+```
+## [1] TRUE
+```
+
+```r
 identical(colnames(GSE43414_cell_cor_sorted_by_brain_regions),as.character(meta_order_by_brain_regions$barcode)) #TRUE
 ```
 
-**subset 100 Probes so my computer doesnt crash**
-```{r sub}
+```
+## [1] TRUE
+```
 
+**subset 100 Probes so my computer doesnt crash**
+
+```r
 brain_regions <- meta_order_by_brain_regions$broad_regions
 tissue <- meta_order_by_brain_regions$Tissue
 breaksList <- seq(0, 1, by = 0.2)
@@ -110,20 +83,31 @@ breaksList <- seq(0, 1, by = 0.2)
 set.seed(1)
 probes <- sample(rownames(GSE43414_cell_cor_sorted_by_brain_regions),100)
 aheatmap(GSE43414_batch_cor_sorted_by_brain_regions[probes,], Colv = NA,annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap of 100 probes")
-
-aheatmap(GSE43414_batch_cor_sorted_by_brain_regions[probes,], annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap of 100 probes")
-
-
-aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], color = colorRampPalette(rev(brewer.pal(n = 6, name = "RdYlBu")))(length(breaksList)), Colv = NA, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Corrected heatmap of 100 probes")
-
-aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Corrected heatmap of 100 probes")
-
-
 ```
 
-**Want to see what thier expression is and if it changes between corrected and non corercted data sets. **
-```{r graph}
+![](Correction_matters.2_files/figure-html/sub-1.png)<!-- -->
 
+```r
+aheatmap(GSE43414_batch_cor_sorted_by_brain_regions[probes,], annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap of 100 probes")
+```
+
+![](Correction_matters.2_files/figure-html/sub-2.png)<!-- -->
+
+```r
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], color = colorRampPalette(rev(brewer.pal(n = 6, name = "RdYlBu")))(length(breaksList)), Colv = NA, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Corrected heatmap of 100 probes")
+```
+
+![](Correction_matters.2_files/figure-html/sub-3.png)<!-- -->
+
+```r
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Corrected heatmap of 100 probes")
+```
+
+![](Correction_matters.2_files/figure-html/sub-4.png)<!-- -->
+
+**Want to see what thier expression is and if it changes between corrected and non corercted data sets. **
+
+```r
 #compare expression of those 100 probes between data sets
 # create a combined data set
 batch_sub <- GSE43414_batch_cor_sorted_by_brain_regions[probes,]
@@ -135,10 +119,21 @@ t.cell_sub <- t(cell_sub)
 colnames(t.cell_sub) <- gsub("cg", "cell", colnames(t.cell_sub))
 
 identical(rownames(t.cell_sub),as.character(meta_order_by_brain_regions$barcode))
+```
 
+```
+## [1] TRUE
+```
+
+```r
 identical(rownames(t.batch_sub),as.character(meta_order_by_brain_regions$barcode))
+```
 
- 
+```
+## [1] TRUE
+```
+
+```r
 Meta_probes <- data.frame(meta_order_by_brain_regions, t.cell_sub, t.batch_sub)
 
 cell_met <- data.frame(Meta_probes[,c(2:4,12,17)], t.cell_sub)
@@ -154,17 +149,20 @@ batch_melt$Data.set <- "not_corrected"
 meta_probes_meled <- rbind(batch_melt,cell_melt)
 meta_probes_meled$variable <- gsub("cell", "cg", meta_probes_meled$variable)
 meta_probes_meled$variable <- gsub("batch", "cg", meta_probes_meled$variable)
- 
 ```
 
-```{r plots}
 
+```r
 strip.plot <- function(t){
 stripplot(t$variable ~ t$value | t$Data.set, t, groups = Tissue, layout = c(2, 1), auto.key = TRUE)
 }
 
 strip.plot(meta_probes_meled)
+```
 
+![](Correction_matters.2_files/figure-html/plots-1.png)<!-- -->
+
+```r
 #facet wrap based on brain region
 
 strip.plot.facet <- function(t){
@@ -172,32 +170,47 @@ stripplot(t$variable ~ t$value | t$Data.set*t$Tissue , t, groups = Tissue, auto.
 }
 
 strip.plot.facet(meta_probes_meled)
+```
 
+![](Correction_matters.2_files/figure-html/plots-2.png)<!-- -->
+
+```r
 #subset patients
 subset_patient_6 <- meta_probes_meled[meta_probes_meled$Subject==6,]
 
 strip.plot(subset_patient_6)
-strip.plot.facet(subset_patient_6)
-
 ```
 
-```{r correlation}
+![](Correction_matters.2_files/figure-html/plots-3.png)<!-- -->
+
+```r
+strip.plot.facet(subset_patient_6)
+```
+
+![](Correction_matters.2_files/figure-html/plots-4.png)<!-- -->
+
+
+```r
 #sample to sample correlations based on brain region
 
 
 aheatmap(cor(batch_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue),main = "uncorrected sample to sample correlation of 100 probes")
-
-aheatmap(cor(cell_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue), main = "corrected sample to sample correlation of 100 probes")
-
-
 ```
+
+![](Correction_matters.2_files/figure-html/correlation-1.png)<!-- -->
+
+```r
+aheatmap(cor(cell_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue), main = "corrected sample to sample correlation of 100 probes")
+```
+
+![](Correction_matters.2_files/figure-html/correlation-2.png)<!-- -->
 **Both correlated a lot with eachother**
 
 
 
 
-```{r boxes}
 
+```r
 plotfunction2 <- function(n)
 {
   ggplot(n, aes(factor(Tissue),value)) +
@@ -211,17 +224,33 @@ plotfunction2 <- function(n)
 }
 
 plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
-plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09766628",] )
-plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg15821319",] )
-plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09654300",] )
-
-
 ```
+
+![](Correction_matters.2_files/figure-html/boxes-1.png)<!-- -->
+
+```r
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09766628",] )
+```
+
+![](Correction_matters.2_files/figure-html/boxes-2.png)<!-- -->
+
+```r
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg15821319",] )
+```
+
+![](Correction_matters.2_files/figure-html/boxes-3.png)<!-- -->
+
+```r
+plotfunction2(meta_probes_meled[meta_probes_meled$variable== "cg09654300",] )
+```
+
+![](Correction_matters.2_files/figure-html/boxes-4.png)<!-- -->
 
 cg20745248
 Box plots, combine cortexes but keep seperated
 
-```{r b2}
+
+```r
 plotfunction3<- function(n)
 {
   ggplot(n, aes(factor(broad_regions),value)) +
@@ -237,12 +266,19 @@ plotfunction3<- function(n)
 
 
 plotfunction3(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
-plotfunction3(meta_probes_meled[meta_probes_meled$variable== "cg06528575",] )
-
 ```
 
+![](Correction_matters.2_files/figure-html/b2-1.png)<!-- -->
+
+```r
+plotfunction3(meta_probes_meled[meta_probes_meled$variable== "cg06528575",] )
+```
+
+![](Correction_matters.2_files/figure-html/b2-2.png)<!-- -->
+
 combine 
-```{r b3}
+
+```r
 plotfunction4<- function(n)
 {
   ggplot(n, aes(factor(broad_regions),value)) +
@@ -256,18 +292,23 @@ plotfunction4<- function(n)
 }
 
 plotfunction4(meta_probes_meled[meta_probes_meled$variable== "cg20935223",] )
-plotfunction4(meta_probes_meled[meta_probes_meled$variable== "cg14813579",] )
-
-
 ```
+
+![](Correction_matters.2_files/figure-html/b3-1.png)<!-- -->
+
+```r
+plotfunction4(meta_probes_meled[meta_probes_meled$variable== "cg14813579",] )
+```
+
+![](Correction_matters.2_files/figure-html/b3-2.png)<!-- -->
 
 one in mill paper cg02573091
 sup cg01156747, cg08835221, cg06242242. cg20636526, cg12362118
 
 
 
-```{r ven}
 
+```r
 cell.probes <- read.csv("/Volumes/Lexar/lists for differental expression/cellprobes.csv")
 colnames(cell.probes) <- "cell.probes"
   
@@ -297,12 +338,29 @@ t.cell_sub <- t(cell_sub)
 colnames(t.cell_sub) <- gsub("cg", "cell", colnames(t.cell_sub))
 
 identical(rownames(t.cell_sub),as.character(meta_order_by_brain_regions$barcode))
+```
 
+```
+## [1] TRUE
+```
+
+```r
 identical(rownames(t.batch_sub),as.character(meta_order_by_brain_regions$barcode))
+```
 
- 
+```
+## [1] TRUE
+```
+
+```r
 identical(as.character(cell_met$gsm),as.character(batch_met$gsm))
+```
 
+```
+## [1] TRUE
+```
+
+```r
 Meta_probes <- data.frame(meta_order_by_brain_regions, t.cell_sub, t.batch_sub)
 
 cell_met <- data.frame(Meta_probes[,c(2:4,12,17)], t.cell_sub)
@@ -318,31 +376,31 @@ batch_melt$Data.set <- "not_corrected"
 meta_probes_meled <- rbind(batch_melt,cell_melt)
 meta_probes_meled$variable <- gsub("cell", "cg", meta_probes_meled$variable)
 meta_probes_meled$variable <- gsub("batch", "cg", meta_probes_meled$variable)
- 
-
-
 ```
 
 Top one only found in cell 
-```{r box2}
 
+```r
 plotfunction4(meta_probes_meled[meta_probes_meled$variable== cell.pr,] )
-
 ```
+
+![](Correction_matters.2_files/figure-html/box2-1.png)<!-- -->
 
 Top one only in batch
-```{r mo}
 
-
+```r
 plotfunction4(meta_probes_meled[meta_probes_meled$variable== batch.pr,] )
-
 ```
+
+![](Correction_matters.2_files/figure-html/mo-1.png)<!-- -->
 
 Top found in both
-```{r mre}
 
+```r
 plotfunction4(meta_probes_meled[meta_probes_meled$variable== both.pr,] )
 ```
+
+![](Correction_matters.2_files/figure-html/mre-1.png)<!-- -->
 
 
 

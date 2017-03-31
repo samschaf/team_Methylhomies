@@ -2,7 +2,7 @@ Hannon et al. (2015) 450K Data Cell Type Prediction
 ========================================================
 ## Original author: Sumaiya Islam
 ## Updated by: Samantha Schaffner
-## Date updated: March 9, 2017
+## Date updated: March 20, 2017
   
 ### Script contents:
   - brain cell type correction of post-mortem human brain samples analyzed by Illumina HM450K platform from Jonathan Mill's research group (PMC4844197). 
@@ -38,10 +38,8 @@ head(pdBrain)
 Load methylation datasets post normalization
 
 ```{r}
-load("GSE59685_filtered_brain.RData") # load normalized 450K data
-dim(GSE59685_filtered_brain)
-GSE59685_filtered_brain[] <- lapply(GSE59685_filtered_brain, as.character)
-GSE59685_filtered_brain[] <- lapply(GSE59685_filtered_brain, as.numeric)
+load("GSE43414_filtered.RData") # load normalized 450K data
+dim(GSE43414_filtered)
 ```
 
 
@@ -60,14 +58,12 @@ Estimate the neuronal proportion:
 
 The estProportion function returns an estimate of the percentage of cell type in the first column of its profile argument (neurons in this case). 
 ```{r}
-prop <- estProportion(GSE59685_filtered_brain, profile = refProfile)
+prop <- estProportion(GSE43414_filtered, profile = refProfile)
 prop<-as.data.frame(prop)
 prop$glia<-apply(prop,1,function(x) 1-x)
 colnames(prop)<- c("neuron", "glia")
 head(prop)
-write.csv(prop, file = "Hannon_Neuronal_Glia_Proportions.csv", row.names=T)
+write.csv(prop, file = "cellprop_uncor.csv", row.names=T)
 summary(prop)
 plot(density(prop$neuron), main="Neuronal Proportion Density") 
 ```
-
-There seems to be four peaks here - likely corresponding to four brain regions, each with its own unique neuron to glia ratio.
