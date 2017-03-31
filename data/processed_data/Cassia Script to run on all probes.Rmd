@@ -108,18 +108,19 @@ PLOTS _ repeat with both data sets (change "GSE43414" for the data set names to 
 # make lables
 brain_regions <- meta_order_by_brain_regions$broad_regions
 tissue <- meta_order_by_brain_regions$Tissue
+breaksList <- seq(0.85, 1, by = .03)
 
 # no sample rearange
-aheatmap(GSE43414_batch_cor_sorted_by_brain_regions, Colv = NA,annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap")
+aheatmap(GSE43414_batch_cor_sorted_by_brain_regions, Colv = NA, annCol = list(Brain_Region = brain_regions, Tissue = tissue), breaks = breaksList, color = "rainbow", main =  "Uncorrected heatmap")
 
 #dendogram of samples
 aheatmap(GSE43414_batch_cor_sorted_by_brain_regions, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap")
 
 # no sample rearange
-aheatmap(GSE43414_cell_cor_sorted_by_brain_regions, Colv = NA, annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions, Colv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
 
 #dendogram of samples
-aheatmap(GSE43414_cell_cor_sorted_by_brain_regions, annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions , annCol = list(Brain_Region = brain_regions, Tissue = tissue, main = "Corrected heatmap"))
 
 ```
 
