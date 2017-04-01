@@ -1,0 +1,241 @@
+---
+title: "MAR 30 CELL-TYPE AND BATCH CORRECTED DMR"
+output: github_document
+---
+```{r}
+source("http://bioconductor.org/biocLite.R")
+biocLite("wateRmelon")
+
+#Downloading 450k annotation data
+source("https://bioconductor.org/biocLite.R")
+biocLite("IlluminaHumanMethylation450k.db")
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("Sushi")
+
+#Loading necessary packages: Functions of packages are noted here also for HW Assignment Q1-5
+#Supressing warnings that were appearing to make my markdown less cluttered
+options(warn=-1) 
+suppressWarnings(suppressMessages(library(ggfortify)))
+suppressWarnings(suppressMessages(library(gridExtra)))
+suppressWarnings(suppressMessages(library(plotly)))
+suppressWarnings(suppressMessages(library(GEOquery)))
+suppressWarnings(suppressMessages(library(wateRmelon)))
+suppressWarnings(suppressMessages(library(minfi)))
+suppressWarnings(suppressMessages(library(limma)))
+suppressWarnings(suppressMessages(library(IlluminaHumanMethylation450kanno.ilmn12.hg19)))
+suppressWarnings(suppressMessages(library(IlluminaHumanMethylation450kmanifest)))
+suppressWarnings(suppressMessages(library(RColorBrewer)))
+suppressWarnings(suppressMessages(library(missMethyl)))
+suppressWarnings(suppressMessages(library(matrixStats)))
+suppressWarnings(suppressMessages(library(minfiData)))
+suppressWarnings(suppressMessages(library(Gviz)))
+suppressWarnings(suppressMessages(library(DMRcate)))
+suppressWarnings(suppressMessages(library(gplots)))
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(stringr)))
+suppressWarnings(suppressMessages(library(tidyverse)))
+suppressWarnings(suppressMessages(library(data.table)))
+suppressWarnings(suppressMessages(library(colorspace)))
+suppressWarnings(suppressMessages(library(VennDiagram)))
+suppressWarnings(suppressMessages(library(qpcR)))
+
+library(ggfortify) #For plotting
+library(gridExtra) #For plotting
+library(plotly) #For plotting
+library(GEOquery) #For downloading genetic data
+library(wateRmelon) #For model/analyses
+library(limma) #For model/analyses
+library(minfi) #For model/analyses
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19) #Gene annotation for analyses
+library(IlluminaHumanMethylation450kmanifest) #Gene annotation for analyses
+library(RColorBrewer) #Colors for plotting
+library(missMethyl)  #For model/analyses
+library(matrixStats) #For data manipulation
+library(minfiData) #For model/analyses
+library(Gviz) #For DMR plotting
+library(DMRcate) #For DMR model/analyses
+library(gplots) #For plotting
+library(ggplot2) #For plotting
+library(stringr) #For data manipulation
+library(tidyverse) #For data manipulation
+library(data.table) #For data manipulation
+library(colorspace) #Colors for plotting
+library(VennDiagram) #Necessary for the overlap counts/venn diagram
+library(qpcR) #Necessary for the overlap counts/venn diagram
+
+#Assigning annotation information for CpG probes on the 450k array
+ann450k = getAnnotation(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+head(ann450k)
+
+#Load data and meta files
+load("C:/Users/GiLL/Desktop/Mar 22 Methyl/GSE43414_cell_cor.RData", verbose=TRUE) 
+load("C:/Users/GiLL/Desktop/Mar 22 Methyl/Meta_batch_cor.RData", verbose=TRUE)
+
+## transpose data such that probe names are colnames, and rows are patient samples
+transpose_GSE43414_cell_cor <- t(GSE43414_cell_cor)
+## order metadata by brain region to remove lunnon NA cases
+meta_order_by_braak <- meta %>% arrange(braak.stage)
+meta_order_by_braakdf <- as.data.frame(meta_order_by_braak)
+
+#Remordering samples in beta data based on lunnon et al.
+matches_GSE43414_cell_cor <- match(meta_order_by_braakdf$barcode, rownames(transpose_GSE43414_cell_cor))
+GSE43414_cell_cor_sorted_by_braak <- t(transpose_GSE43414_cell_cor[matches_GSE43414_cell_cor,])
+GSE43414_cell_cor_sorted_by_braakdf <- as.data.frame(GSE43414_cell_cor_sorted_by_braak)
+
+#Removing NA and braak exclude samples in meta 
+meta_order_by_braakdf <- meta_order_by_braakdf[-c(280:432), ]
+
+#Removing the NA and braak exclude samples in data
+GSE43414_cell_cor_sorted_by_braakdf <- subset(GSE43414_cell_cor_sorted_by_braakdf, select = -c(280:432))
+GSE43414_cell_cor_sorted_by_braakmat <- as.matrix(GSE43414_cell_cor_sorted_by_braakdf)
+
+#Create broad regions column
+meta_order_by_braakdf$broad_regions <- ifelse(meta_order_by_braakdf$Tissue == "cerebellum", "cerebellum","cortex")
+
+#Making tissue names and braak stage syntactically valid for analysis later (removes space, adds ".", numeric stage)
+meta_order_by_braakdf$braak.stage <- as.numeric(meta_order_by_braakdf$braak.stage)
+
+str(meta_order_by_braakdf)
+str(GSE43414_cell_cor_sorted_by_braakdf)
+
+#Creating beta and M value dataframes
+B.norm <- GSE43414_cell_cor_sorted_by_braakmat
+B.normdf <- as.data.frame(B.norm)
+
+M.norm <- logit2(GSE43414_cell_cor_sorted_by_braakmat)
+M.normdf <- as.data.frame(M.norm)
+
+#Memory Cleaning - Necessary when data is large
+rm(GSE43414_cell_cor)
+rm(transpose_GSE43414_cell_cor)
+rm(GSE43414_cell_cor_sorted_by_braak)
+rm(GSE43414_cell_cor_sorted_by_braakmat)
+rm(matches_GSE43414_cell_cor)
+```
+
+```{r}
+# Pre-DMRcate Setup
+
+# create the design for the model
+design <- model.matrix(~meta_order_by_braakdf$broad_regions+meta_order_by_braakdf$braak.stage+meta_order_by_braakdf$Sex+meta_order_by_braakdf$age.brain, row.names=T)
+View(design)
+
+# fit the linear model
+fit <- lmFit(M.norm, design)
+
+# fit the contrasts
+fit2 <- eBayes(fit)
+
+# look at the numbers of DM CpGs at FDR < 0.05
+summary(decideTests(fit2))
+
+# get the table of results for the first contrast
+ann450ksub <- ann450k[match(rownames(M.norm),ann450k$Name),
+c(1:4,12:19,24:ncol(ann450k))]
+DMPs <- topTable(fit2, num=Inf, coef=1, genelist=ann450ksub)
+str(DMPs)
+
+# Saving the data.frame file as an Excel
+write.table(DMPs, file="Cell-type-DMPs.csv", sep=",", row.names=FALSE)
+
+# As a quick check, plot the top 4 most significantly differentially methylated CpGs, Tissue
+par(mfrow=c(2,2))
+sapply(rownames(DMPs)[1:4], function(cpg){
+plotCpg(B.norm, cpg=cpg, pheno=meta_order_by_braakdf$broad_regions, type = "categorical", measure = "beta")
+})
+
+# As a quick check, plot the top 4 most significantly differentially methylated CpGs, Braak
+par(mfrow=c(2,2))
+sapply(rownames(DMPs)[1:4], function(cpg){
+plotCpg(B.norm, cpg=cpg, pheno=meta_order_by_braakdf$braak.stage, type = "continuous", measure = "beta")
+})
+
+```
+
+Differential methylation analysis of regions
+
+Use dmrcate function to combine individual CpG statistics to identify differentially methylated regions. DMRs$results contains all of the regions found, with genomic annotations and p-values
+
+```{r}
+#DMRcate Contrast Copy
+myannotation <- cpg.annotate(M.norm, datatype = "array", what = "M", arraytype = "450K", analysis.type="differential", design=design, coef=3)
+
+str(myannotation)
+
+dmrcoutput <- dmrcate(myannotation, lambda=1000, C=2, pcutoff = 0.05)
+head(dmrcoutput$results)
+str(dmrcoutput$results)
+
+# convert the regions to annotated genomic ranges
+results.ranges <- extractRanges(dmrcoutput, genome = "hg19")
+
+# Creating a DMR.plot for cerebellum vs. cortex
+groups <- c(cerebellum="magenta", cortex="forestgreen")
+cols <- groups[as.character(meta_order_by_braakdf$broad_regions)]
+samps <- c(1:6, 38+(1:6))
+DMR.plot(ranges=results.ranges, dmr=2, CpGs=B.norm, what="Beta", arraytype = "450K",
+phen.col=cols, genome="hg19", samps=samps, toscale=TRUE, plotmedians = TRUE)
+
+# Assigning a gene_list for plotting
+gene_list<- DMPs
+View(gene_list)
+
+require(ggplot2)
+##Highlight genes that have an absolute fold change > 2 and a FDR cutoff of 1e-05
+gene_list$threshold = as.factor(abs(gene_list$logFC) > 2 & gene_list$adj.P.Val <= 1e-05)
+ 
+##Construct the volcano plot
+g = ggplot(data=gene_list, aes(x=logFC, y=-log10(P.Value), colour=threshold)) +
+  geom_point(alpha=0.4, size=1.75) +
+  labs(legend.position = "none") +
+  xlab("log2 fold change") + ylab("-log10 p-value")
+
+g 
+
+```
+
+```{r}
+#Venn of DM significant CpGs Cell-type vs. Batch and Both
+
+#DMPscell
+DMPscell <- DMPs
+
+#DMPsbatch equivalent and significant in both was calculated when it was loaded in r from batch corrected DMR file
+DMPsbatch <- read_csv("C:/Users/GiLL/Desktop/Mar 25 Subset DMR/Batch-DMPs.csv")
+
+#Subsetting the rownames of differentially methylated probes Cell-type
+DiffMcell <- subset(DMPscell, adj.P.Val <= 1e-05)
+View(DiffMcell)
+DiffMcellprobes <- rownames(DiffMcell)
+head(DiffMcellprobes)
+
+#Subsetting the rownames of differentially methylated probes Batch
+DiffMbatch <- subset(DMPsbatch, adj.P.Val <= 1e-05)
+View(DiffMbatch)
+DiffMbatchprobes <- DiffMbatch$Name
+head(DiffMbatchprobes)
+
+#Calculating the number of overlapping and different probes that were identified as DM by Cell-type vs. Batch-corrected only
+
+#Significant in both cell-type and batch
+bothprobes <- list(intersect(DiffMcellprobes,DiffMbatchprobes))
+write.table(bothprobes, file="bothprobes.csv", sep=",")
+str(bothprobes)
+
+#Significant only in cell-type
+cellprobes <- list(setdiff(DiffMcellprobes,DiffMbatchprobes))
+write.table(cellprobes, file="cellprobes.csv", sep=",")
+str(cellprobes)
+
+#Significant only in batch
+batchprobes <- list(setdiff(DiffMbatchprobes,DiffMcellprobes))
+write.table(batchprobes, file="batchprobes.csv", sep=",")
+str(batchprobes)
+
+#Calculating the number of overlapping and different probes that were identified in Batch vs. Cell-type corrected
+venn(list(CellType = DiffMcellprobes, Batch = DiffMbatchprobes))
+```
+
+
+
