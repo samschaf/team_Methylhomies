@@ -28,4 +28,4 @@ Step 4
 
 **NEW** [Generating data with samples sorted by brain region on the new corrected data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/Correction_matters.2.md)
 
-[Wilcoxon Test script to calculate p-value for significantly differentially methylated probes between cerebellum and cortex)(WilcoxTestProbes.R)
+[Wilcoxon Test script to calculate p-value for significantly differentially methylated probes between cerebellum and cortex](WilcoxTestProbes.R)
