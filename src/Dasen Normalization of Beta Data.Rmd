@@ -1,4 +1,4 @@
-Normalization of Beta Data
+Dasen Normalization of Beta Data
 =======================================
 
 ### Original author: Rachel Edgar
