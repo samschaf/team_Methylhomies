@@ -1,48 +1,29 @@
----
-title: "Basic Heatmaps"
-output: 
-  html_document: 
-    keep_md: yes
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+# Basic Heatmaps (BMIQ)
 
 
-#source("https://bioconductor.org/biocLite.R")
-#biocLite("limma")
-#biocLite("edgeR")
-#install.packages('dplyr')
-#biocLite("ComplexHeatmap")
-library(NMF)
-library(dplyr)
-```
 
 
-```{r load}
 
+```r
 load("~/Methylhomies/GSE43414_batch_cor.RData")
 
 load("~/Methylhomies/GSE43414_cell_cor.RData")
 
 load("~/Methylhomies/Meta_batch_cor.RData")
-
 ```
 
 Remove Braak stage exludes and NAs
 
-```{r remove}
+
+```r
 meta2 <- na.omit(meta) #remove NA
 meta <- meta2[!c(meta2$braak.stage=="Exclude"),] #remove exlucdes
-
-
-
 ```
 
 Lisas code to rearrange
 
-```{r rea}
 
+```r
 ## add another broad region column
 meta$broad_regions <- ifelse(meta$Tissue == "cerebellum", "cerebellum","cortex")
 meta$tissue_color <- lapply(meta$Tissue,function(x){
@@ -75,37 +56,59 @@ GSE43414_batch_cor_sorted_by_brain_regions <- t(transpose_GSE43414_batch_cor[mat
 
 #Check for identical 
 identical(colnames(GSE43414_batch_cor_sorted_by_brain_regions),colnames(GSE43414_cell_cor_sorted_by_brain_regions)) # TRUE
+```
 
+```
+## [1] TRUE
+```
+
+```r
 identical(colnames(GSE43414_cell_cor_sorted_by_brain_regions),as.character(meta_order_by_brain_regions$barcode)) #TRUE
+```
 
-
+```
+## [1] TRUE
 ```
 
 
-```{r}
+
+```r
 brain_regions <- meta_order_by_brain_regions$broad_regions
 tissue <- meta_order_by_brain_regions$Tissue
 
 set.seed(1)
 probes <- sample(rownames(GSE43414_cell_cor_sorted_by_brain_regions),1000)
 
-aheatmap(GSE43414_batch_cor_sorted_by_brain_regions[probes,], Colv = TRUE,annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Uncorrected heatmap", width = 2, height = 2)
-
-aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], Colv = TRUE, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Corrected heatmap", width = 2, height = 2)
+aheatmap(GSE43414_batch_cor_sorted_by_brain_regions[probes,], Colv = TRUE,annCol = list(Brain_Region = brain_regions, Tissue = tissue), main =  "Batch", width = 2, height = 2)
 ```
 
-```{r graph}
+![](Heatmaps__BMIQ__files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
+```r
+aheatmap(GSE43414_cell_cor_sorted_by_brain_regions[probes,], Colv = TRUE, annCol = list(Brain_Region = brain_regions, Tissue = tissue), main = "Cell Type Corrected", width = 2, height = 2)
+```
+
+![](Heatmaps__BMIQ__files/figure-html/unnamed-chunk-1-2.png)<!-- -->
+
+
+```r
 # create a combined data set
 batch_sub <- GSE43414_batch_cor_sorted_by_brain_regions
 
 cell_sub <- GSE43414_cell_cor_sorted_by_brain_regions
-
 ```
 
-```{r correlation}
+
+```r
 #sample to sample correlations based on brain region
 
-aheatmap(cor(batch_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue),main = "uncorrected sample to sample correlation")
+aheatmap(cor(batch_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue),main = "Non-Cell Type Corrected BMIQ")
+```
 
-aheatmap(cor(cell_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue), main = "corrected sample to sample correlation")
+![](Heatmaps__BMIQ__files/figure-html/correlation-1.png)<!-- -->
+
+```r
+aheatmap(cor(cell_sub),Colv = NA, Rowv = NA,  annCol = list(Brain_Region = brain_regions, Tissue = tissue), annRow = list(Brain_Region = brain_regions, Tissue = tissue), main = "Cell Type Corrected BMIQ")
+```
+
+![](Heatmaps__BMIQ__files/figure-html/correlation-2.png)<!-- -->
