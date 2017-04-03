@@ -26,3 +26,6 @@ Step 4
 [broad expression and correlation heatmaps, methylation levels of probes generated for corrected and uncorrected data with BMIQ normalized data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/Correction_matters.2.md)
 
 [Wilcoxon Test script to calculate p-value for significantly differentially methylated probes between cerebellum and cortex](WilcoxTestProbes.R)
+
+Step 5
+Differential methylated probes and regions analysis
