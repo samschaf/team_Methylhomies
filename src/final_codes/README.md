@@ -18,7 +18,7 @@ Analysis
   --more [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Differentially_Methylated_Probe_Analysis_-_Batch_Corrected_Only__DMR_Setup__Final.md)
   -- here  [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Differentially_Methylated_Probe_Analysis_-_Cell-Type_Corrected__DMR_Setup__Final.md)
 - Boxplots for the most differentially methylated probes were generated [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd). Pleminary versions of the code can be found in the [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md)
-- [Wilcox tests were done for the box plots with this code](WilcoxTestProbes_analysis.R)
+Wilcoxon test was performed to compare probe values between cerebellum and cortex. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was used. The code for the wilcoxon test can be found [here] (WilcoxTestProbes_analysis.R)
 
 
 
