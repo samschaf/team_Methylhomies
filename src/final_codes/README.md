@@ -18,7 +18,7 @@ Analysis
   --more [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Differentially_Methylated_Probe_Analysis_-_Batch_Corrected_Only__DMR_Setup__Final.md)
   -- here  [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Differentially_Methylated_Probe_Analysis_-_Cell-Type_Corrected__DMR_Setup__Final.md)
 - Boxplots for the most differentially methylated probes were generated [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd). Pleminary versions of the code can be found in the [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md)
-- [Wilcox tests were done for the box plots with this code](WilcoxTestProbes.R) **lisa can you move that file into the src final_codes
+- [Wilcox tests were done for the box plots with this code](WilcoxTestProbes_analysis.R)
 
 
 
