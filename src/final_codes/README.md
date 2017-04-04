@@ -16,7 +16,7 @@ We downloaded both the Dasen normalized data and the QN normalized data
 
 A overview of the processing steps are visualized in this pipeline:
 
-![](Images/Pipline_of_Methods.png)
+![](/Images/Pipeline_of_Methods.png)
 
 ## Analysis
 - sample to sample correlation plots and heatmaps were created from various codes that can be found with explanations in the working_code [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md). This is thefinal code for the [BMIQ data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(BMIQ).Rmd) and [Dasen data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd)
