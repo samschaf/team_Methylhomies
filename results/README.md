@@ -88,21 +88,24 @@ BMIQ
 QN+BMIQ normalization increases sample to sample correlations compared to dasen normalization. Cell type correction increases inter tissue sample correlations in the dasen model, in line with the purpose of the normalization method to increase the comparability between tissues. This is unable to be seen in the BMIQ data as the samples are already highly correlated.
 
 
-*DMR analysis*
+*DMP and DMR analysis*
 
 **Aim**
-
+to identify and compare differentially methylated probes (at an FDR 0.05 and absolute delta beta >=0.05) between tissue type, and differentially methylated regions in both the batch-corrected only data, and the both batch-corrected and cell-type corrected data.
 
 **inputs**
 
+--QN + BMIQ filtered data = file: GSE43414_batch_cor.RData
 
+--QN + BMIQ filtered + cell type corrected data = file: GSE43414_cell_cor.RData
+
+--meta data = file:Meta_batch_cor.RData
 
 **outputs**
-- top probes
-- images
-
+![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)
 
 **conclusions**
+correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
 
 *single probe comparisons and Wilcoxon tests*
 
