@@ -34,3 +34,4 @@ other folders
 
 our [resources folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/resources) includes codes that we modified for our analysis. These codes have been referenced in our src where appropriate
 our [images folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/Images) includes images we shared with eachother to keep updates on the project and help with trouble shooting
+
