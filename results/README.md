@@ -102,6 +102,7 @@ to identify and compare differentially methylated probes (at an FDR 0.05 and abs
 --meta data = file:Meta_batch_cor.RData
 
 **outputs**
+
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)
 
 **conclusions**
