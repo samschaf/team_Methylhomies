@@ -129,7 +129,7 @@ to show statistical differences between tissues regions in probes found only in 
 
 - statistics: wilcoxon test was performed for the 3 probes (shown in boxplots above) on the cell-type corrected dataset and non cell-type corrected data
 
-** statistics for cell-type corrected data
+** statistics for cell-type corrected data **
 
 probe IDs     | p value       | adjusted p value  |
 ------------- | ------------- | ----------------- |   
@@ -137,7 +137,8 @@ cg04197371    | 3.161739e-13  | 4.742609e-13      |
 cg23112745    | 7.113933e-11  | 7.113933e-11      |  
 cg06826710    | 4.018419e-14  | 1.205526e-13      |
 
-** statistics for cell-type corrected data
+
+** statistics for non cell-type corrected data **
 
 probe IDs     | p value       | adjusted p value  |
 ------------- | ------------- | ----------------- |   
