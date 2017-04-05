@@ -69,13 +69,19 @@ to determine whether the samples correlate well with eachother. If processing no
 - images
 
 Dasen
+
 ![](/Heatmaps/Non-cell_type_corrected_sample_cor_dasen.png)
+
 ![](/Heatmaps/Cell_type_corrected_sample_cor_dasen.png)
 
 BMIQ
+
 ![](/Heatmaps/Non_cell_type_corrected_sample_cor_BMIQ.png)
+
 ![](/Heatmaps/Cell_type_corrected_sample_cor_BMIQ.png)
+
 ![](/Heatmaps/Batch_BMIQ_heatmap.png)
+
 ![](/Heatmaps/Cell_type_corrected_BMIQ.png)
 
 **conclusions**
@@ -115,7 +121,9 @@ to show statistical differences between tissues regions in probes found only in 
 
 - images
 ![Most significant DMP in cell-type corrected data](/boxplots/Rplotcell.png)
+
 ![Most significant DMP in non-cell-type corrected data](/boxplots/Rplotbatch.png)
+
 ![Most significant DMP found in both data sets](/boxplots/Rplotbatch.png)
 
 - statistics
