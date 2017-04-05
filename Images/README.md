@@ -1,1 +1,1 @@
-This folder contains the images that are embedded in various files within the Methylhomies repository
+This folder contains the images that are embedded in various files within the Methylhomies repository and work in progess images we shared with eachother to update the team on our tasks and problem shooting. Final images used in our poster can be found in the [results folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/results)
