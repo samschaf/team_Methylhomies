@@ -36,3 +36,5 @@ our [resources folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/mas
 
 our [images folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/Images) includes images we shared with eachother to keep updates on the project and help with trouble shooting
 
+Our final poster can be found in the root directory or [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/Poster.pdf)
+
