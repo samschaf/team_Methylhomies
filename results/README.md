@@ -103,7 +103,7 @@ to identify and compare differentially methylated probes (at an FDR 0.05 and abs
 
 **outputs**
 
---Top Probes:
+- Top Probes:
 
 List of top probes significant in both datasets:
 
@@ -117,7 +117,7 @@ List of top probes significant in batch-corrected only:
 
 chr [1:7419] "cg06826710" "cg25057705" "cg01219907" "cg04462567" ...
 
--images 
+- images 
 
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)
 
