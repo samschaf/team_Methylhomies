@@ -120,6 +120,7 @@ to show statistical differences between tissues regions in probes found only in 
 **outputs**
 
 - images
+
 ![Most significant DMP in cell-type corrected data](/results/boxplots/Rplotcell.png)
 
 ![Most significant DMP in non-cell-type corrected data](/results/boxplots/Rplotbatch.png)
