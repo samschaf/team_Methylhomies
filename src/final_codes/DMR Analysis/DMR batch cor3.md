@@ -9,22 +9,8 @@ setwd("/home/sschaffner/team_Methylhomies")
 #Supressing warnings that were appearing to make my markdown less cluttered
 options(warn=-1) 
 suppressWarnings(suppressMessages(library(ggfortify)))
-```
-
-```
-## Error in library(ggfortify): there is no package called 'ggfortify'
-```
-
-```r
 suppressWarnings(suppressMessages(library(gridExtra)))
 suppressWarnings(suppressMessages(library(plotly)))
-```
-
-```
-## Error in library(plotly): there is no package called 'plotly'
-```
-
-```r
 suppressWarnings(suppressMessages(library(GEOquery)))
 suppressWarnings(suppressMessages(library(wateRmelon)))
 suppressWarnings(suppressMessages(library(minfi)))
@@ -35,13 +21,6 @@ suppressWarnings(suppressMessages(library(RColorBrewer)))
 suppressWarnings(suppressMessages(library(missMethyl)))
 suppressWarnings(suppressMessages(library(matrixStats)))
 suppressWarnings(suppressMessages(library(minfiData)))
-```
-
-```
-## Error in library(minfiData): there is no package called 'minfiData'
-```
-
-```r
 suppressWarnings(suppressMessages(library(Gviz)))
 suppressWarnings(suppressMessages(library(DMRcate)))
 suppressWarnings(suppressMessages(library(gplots)))
@@ -61,32 +40,11 @@ suppressWarnings(suppressMessages(library(qpcR)))
 ```r
 library(wateRmelon)
 library(Sushi)
-```
-
-```
-## Error in library(Sushi): there is no package called 'Sushi'
-```
-
-```r
 library(IlluminaHumanMethylation450k.db)
 library(lumi)
 library(ggfortify) #For plotting
-```
-
-```
-## Error in library(ggfortify): there is no package called 'ggfortify'
-```
-
-```r
 library(gridExtra) #For plotting
 library(plotly) #For plotting
-```
-
-```
-## Error in library(plotly): there is no package called 'plotly'
-```
-
-```r
 library(GEOquery) #For downloading genetic data
 library(wateRmelon) #For model/analyses
 library(limma) #For model/analyses
@@ -97,13 +55,6 @@ library(RColorBrewer) #Colors for plotting
 library(missMethyl)  #For model/analyses
 library(matrixStats) #For data manipulation
 library(minfiData) #For model/analyses
-```
-
-```
-## Error in library(minfiData): there is no package called 'minfiData'
-```
-
-```r
 library(Gviz) #For DMR plotting
 library(DMRcate) #For DMR model/analyses
 library(gplots) #For plotting
@@ -432,8 +383,8 @@ gc()
 
 ```
 ##             used   (Mb) gc trigger    (Mb)   max used    (Mb)
-## Ncells  10144696  541.8   17371378   927.8   17371378   927.8
-## Vcells 611575894 4666.0 1654833467 12625.4 1759352440 13422.8
+## Ncells  10228070  546.3   20885653  1115.5   20885653  1115.5
+## Vcells 611662242 4666.7 1654833467 12625.4 1759352440 13422.8
 ```
 
 
@@ -1045,13 +996,13 @@ nrow(hits)
 ```r
 #Arrange by mean DB
 hits <- hits %>% arrange(desc(mean_DB))
-hits$coord[1:2] #"chr11:674623-674687"       "chr10:131209478-131209623"
+hits$coord[1:2] 
 ```
 
 ```
 ## [1] "chr11:674623-674687" "chr7:891044-891145"
 ```
-Using the UCSC Genome Browser (hg19), the top two hits are located in DEAF1 and in an intergenic region upstream of MGMT.
+
 
 #Volcano plot
 

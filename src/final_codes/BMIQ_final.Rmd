@@ -1,0 +1,158 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+Data Normalization: BMIQ
+========================================================
+## Original author: Sumaiya Islam
+## Edited by: Samantha Schaffner
+## Date updated: March 31, 2017
+
+Many inter- and intra-sample normalization methods are available for 450k methylation data; however, quantile normalization (QN) followed by beta-mixture quantile normalization (BMIQ) has been shown to be one of the most effective (Wang et al, 2015; PMC4623491). Quantile normalization is used to correct for broad differences in the distributions of methylation data, which can be due to factors such as tissue. BMIQ specifically corrects for differences in probe type distribution (further explained below), as the 450k array contains two types of probe chemistry. While each method can be used alone, we chose to increase our stringency and allow for between-sample analysis by applying both.
+
+The beta values we downloaded from GEO (GSE43414) had already been quantile normalized, so we only applied BMIQ here.
+
+### A. Set up working directory & packages
+
+R version 3.2.3 (2015-12-10)
+
+We will initially set our working directory and load our libraries.
+```{r, results='hide'}
+setwd("/home/sschaffner/team_Methylhomies")
+unloadNamespace("minfi")
+unloadNamespace("mgcv")
+unloadNamespace("lumi")
+library(methylumi)
+library(gplots)
+library(marray)
+library(lumi)
+library(lattice)
+library("RColorBrewer")
+library(knitr)
+library(xtable)
+library(wateRmelon)
+library(limma)
+library(sva)
+library(RPMM)
+library(dplyr)
+```
+
+### B. Load files
+
+
+```{r fileLoad}
+load(file = "GSE43414_filtered.RData") # filtered data
+load(file="Brain_meta_matched_GSE43414.RData")
+load("Priest.RData") # Priest methylumi object for fData
+dim(GSE43414_filtered)
+dim(Priest)
+```
+
+### C. Probe-type Normalization: BMIQ
+
+The 450K Illumina Infinium Array has inherent variation associated with its methodologies which must be accounted for in our analyses. Much of this variation is attributed to the use of two types of probes used in the array, Type I and Type II.
+
+Type I probes contain two bead types corresponding to an unmethylated (U) or methylated (M) status. Type I probes obtain methylation status as a result of fluoresence expressed after a single base pair extension occurs just after the target basepair, resulting in only one color channel being utilized (red). Type I probes also assume that any CpG sites underlying the probe are of the same status as the query site (methylated or unmethylated). The beta values for Type I probes are then determined by this formula b= M/(U + M). Importantly, Type I probes are enriched in regions of high CpG density (carry 3 or more CpG sites underlying the probe body), particularly those associated with promoters). Type II probes tend to occur in lower CpG density regions (carry 3 or less CpG sites underlying the probe body). Type II probes do not assume the methylation status of underlying CpG sites within the probe and so consist of a combination of degenerate probes with varying combinations of up to three underlying CpG sites. Type II probes also detect methylation status with a single base pair extension except that the site being extended is the CpG site of detection and so require two fluorescent colors green for methylated (M) and red for unmethylated (U) sites. Type II probe beta values are calculated using this formula b = Green (M)/(Red (U) + Green (M)). In terms of considerations for normalization, Type I probes have a much higher dynamic range than Type II probes, which may introduce an enrichment bias towards Type I probes when ranking probes in supervised analyses (Teschendorff et al 2013, Bioinformatics). 
+
+Due to these inherent differences between Type I and Type II probes used in the Illumina Infinium 450K array several groups in the field have deveolped various normalization analyses to correct for the differences between these probes. We will be using an intra-sample normalization method that corrects for probe-type differences called BMIQ (Beta MIxture Quantile dilation) (Teschendorff et al 2013, Bioinformatics).
+
+#### BMIQ (Beta MIxture Quantile dilation)
+
+BMIQ is an intra-sample normalisation procedure, correcting the bias of type-2 probe values. BMIQ uses a 3-step procedure: (i) fitting of a 3-state beta mixture model, (ii) transformation of state-membership probabilities of type2 probes into quantiles of the type1 distribution, and (iii) a conformal transformation for the hemi-methylated probes. Exact details can be found in the reference (Teschendorff et al 2013, Bioinformatics).
+
+
+```{r}
+dim(Priest<-Priest[featureNames(Priest)%in%rownames(GSE43414_filtered),])
+head(probe_design<-as.character(fData(Priest)$INFINIUM_DESIGN_TYPE))
+probe_design.v<- replace(probe_design, probe_design=="I", 1)
+probe_design.cor<- replace(probe_design.v, probe_design.v=="II", 2)
+probe_design.cor<-as.numeric(probe_design.cor)
+identical(nrow(GSE43414_filtered), length(probe_design.cor))
+```
+
+```{r BMIQ, results='hide'}
+# Run BMIQ across each sample
+betas_normalized<-apply(GSE43414_filtered, 2, function(x) BMIQ(x,probe_design.cor)) # this code takes a long time---best to run it overnight esp if you have a lot of samples
+```
+
+```{r}
+# extract normalized beta values and reshape
+betas_normalized_betas<-lapply(1:length(betas_normalized), function(x) betas_normalized[[x]]$nbeta)
+betas_normalized_betas<-do.call(rbind, betas_normalized_betas)
+betas_norm.fin<-t(betas_normalized_betas)
+colnames(betas_norm.fin)<-colnames(GSE43414_filtered)
+head(betas_norm.fin)
+
+# save normalized data
+GSE43414_BMIQ <- betas_norm.fin
+save(GSE43414_BMIQ, file = "GSE43414_BMIQ.RData")
+```
+
+## Comparing raw and normalized datasets   
+NOTE: The loop in this in this code to add probe type to betas.plot appears to run infinitely, or at least for days. After letting it run a long time then manually stopping it, it still created the correct annotations, allowing us to move forward with plotting. However it will not knit into an .md without getting stuck on this loop again, so the evaluation has been set to FALSE for the purpose of GitHub. The resultant plot can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/Images/raw_normalized_ggplot.png).
+
+For all samples:
+```{r, eval=FALSE}
+## use ggplot2 to plot density plots of raw and normalized data
+# extract beta matrix for raw and normalized datasets
+betas.raw <- as.matrix(GSE43414_filtered)
+betas.norm <- GSE43414_BMIQ
+
+# randomly sample 10,000 probes from the datasets (same random probes in each dataset)
+random.probes<-sample(1:nrow(betas.raw), 10000)
+betas.raw.subset<-betas.raw[random.probes,]
+betas.norm.subset<-betas.norm[random.probes,]
+
+#Create data frame with probe type annotations
+type <- as.character(fData(Priest)$INFINIUM_DESIGN_TYPE)
+probe <- as.character(fData(Priest)$NAME)
+probe.ann <- as.data.frame(cbind(probe, type))
+probe.ann$type <- as.character(probe.ann$type)
+probe.ann$probe <- as.character(probe.ann$probe)
+
+# add probe type variable to raw betas
+betas.raw.subset <- as.data.frame(betas.raw.subset)
+for (i in 1:nrow(betas.raw.subset)){
+  for (j in 1:nrow(probe.ann)){
+    if (rownames(betas.raw.subset)[i] == #probe.ann$probe[j]){
+      betas.raw.subset$type[i] <- probe.ann$type[j]
+    }}}
+
+# add probe type variable to normalized betas
+betas.norm.subset <- as.data.frame(betas.norm.subset)
+for (i in 1:nrow(betas.norm.subset)){
+  for (j in 1:nrow(probe.ann)){
+    if (rownames(betas.norm.subset)[i] == probe.ann$probe[j]){
+      betas.norm.subset$type[i] <- probe.ann$type[j]
+    }}}
+
+# melt each dataset
+head(betas.raw.melt<-melt(betas.raw.subset))
+head(betas.norm.melt<-melt(betas.norm.subset))
+# remove NAs
+betas.raw.melt.clean<-betas.raw.melt[which(!(is.na(betas.raw.melt$value))),]
+betas.norm.melt.clean<-betas.norm.melt[which(!(is.na(betas.norm.melt$value))),]
+# add descriptor for each datatype and add meta data to each dataset
+betas.raw.melt.clean$Data<-"Raw"
+betas.norm.melt.clean$Data<-"Normalized"
+head(betas.raw.melt.clean)
+
+meta.raw <- Brain_matched
+meta.norm <- Brain_matched
+head(betas.raw.plot<-merge(betas.raw.melt.clean, meta.raw, by.x="variable", by.y="barcode"))
+head(betas.norm.plot<-merge(betas.norm.melt.clean, meta.norm, by.x="variable", by.y="barcode"))
+
+# combine both datasets
+betas.plot<-rbind(betas.raw.plot, betas.norm.plot)
+betas.plot$type<-factor(betas.plot$type, levels=c("I", "II"))
+betas.plot$Data<-factor(betas.plot$Data, levels=c("Raw", "Normalized"))
+
+# plot density plots
+betas.plot$type <- as.character(betas.plot$type)
+ggplot(betas.plot, aes(value, group=Subject, colour=type)) + geom_density() + theme_bw() + facet_wrap(~Data) + scale_color_manual(values = c("blue","red"))
+```
+
+We can see that there is improved peak-to-peak overlap of the Type 1 and Type 2 probes with the final normalized dataset as desired (ie Type 1 and 2 probes have more similar dynamic ranges for their beta values). 
+
+We will continue on with our analysis using the BMIQ-normalized datasets.
