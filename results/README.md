@@ -1,9 +1,9 @@
 
 Results
 ========
-in this folder we will discuss the imput and outputs of the code as well as interpretations. the breakdown of our codes can be found in the [src folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/src/final_codes)
+In this folder we will discuss the input and outputs of the code as well as interpretations. The breakdown of our codes can be found in the [src folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/src/final_codes)
 
-Overarcing aims:
+Overarching aims:
 1. To determine whether cell type correction between brain regions is necessary in the analysis of Illumina HumanMethylation450 BeadChip array data
 2. To investigate probes differentially methylated between cerebellum and cortex regions
 
@@ -13,35 +13,102 @@ Processing
 Overview of processing steps:
 
 ![](/Images/Pipeline_of_Methods.png)
+*Probe filtering:*
 
 **Aim**
+To remove probes from the data which would confound our analysis, including probes with SNPs, probes with NAs, and cross-hybridizing probes. Data was also filtered to contain only brain samples (originally had brain + blood).
 
-**Imput: **
+**Input: **
 
-Dasen data = file: 
+--Dasen data = file: GSE59685.RData
 
-QN data = file:
+--meta data = file: Meta_matched_GSE59685.RData
 
-meta data = file
+--QN data = file: GSE43414_betaqn_geo_all_cohorts.csv
+
+--meta data = file: Brain_meta_matched_GSE43414.RData
 
 **Output:**
   - files
   
---Dasen filtered data = file: GSE59685_batch_cor.RData
+--Dasen filtered data = file: GSE59685_filtered.RData
 
---Dasen filtered + cell corrected data = file:GSE59685_cell_cor.RData
+--Dasen filtered meta data = file: Meta_matched_brain.txt
 
---meta data = file: Meta_brain_cell_batch.RData
+--QN filtered data = file: GSE43414_filtered.RData
 
---QN + BMIQ filtered data = file: GSE43414_batch_cor.RData
-
---QN + BMIQ filtered + cell type corrected data = file: GSE43414_cell_cor.RData
-
---meta data = file:Meta_batch_cor.RData
-
-  - images
+--QN filtered meta data = file: Meta_uncor.RData
   
-**conclusion**
+**Conclusion**
+Prior to filtering, there were 485577 probes. Filtering removed 65 SNP probes, 20869 probes that had a SNP within, 11475 probes hybridzing to sex chromosomes, 10673 cross hybrizing X and Y probes, 27415 cross hybridizing autosomal probes, and 176 NA probes. A total of 414904 probes remained.
+
+*Beta-mixture quantile (BMIQ) normalization:*
+
+**Aim**
+To correct for intra-array differences between probe type I and II chemistries that cause differing beta value distributions. This was performed on the QN-normalized data we had decided to move forward with, in order to make direct comparisons between any CpG site across any two brain regions.
+
+**Input: **
+
+--QN data = file: GSE43414_filtered.RData
+
+--meta data = file: Meta_uncor.RData
+
+**Output:**
+  - files
+
+--BMIQ normalized data = file: GSE43414_BMIQ.RData
+
+**Conclusion**
+![](/Images/raw_normalized_ggplot.png)   
+Applying BMIQ normalization made the type I and II probe distributions highly similar, and now much more appropriate for direct comparisons and further analysis.
+
+*ComBat batch correction, cell type prediction, and PCA:*
+
+**Aim**
+Multiple BeadChips were used to generate this data; we aimed to correct for variation due to the individual chip and position on the chip. Since we would be analyzing the effect of cell type, we also used to CETS package to predict proportions of neurons and glia based on the non-corrected and the corrected beta values. These neuronal propotions were attached to the meta data and used as continous variables in PCA analysis.
+
+**Input: **
+
+--BMIQ normalized data = file: GSE43414_BMIQ.RData
+
+--meta data = file: Meta_uncor.RData
+
+**Output:**
+  - files
+
+--ComBat corrected data = file: GSE43414_batch_cor.RData
+
+--meta data = file: Meta_batch_cor.RData
+
+
+**Conclusion**
+![](/Images/PCA_uncor_zoom)   
+Before batch correction, there was a large effect of chip and tissue; it appeared the samples had been batched by tissue type.   
+
+![](/Images/PCA_batch_zoom)   
+After batch correction, the chip and tissue effects plus much of the other variation was removed, leaving only a Neuron (cell type) effect.
+
+*CETS cell type correction and PCA:*
+
+**Aim**
+Linear regression and the predicted neuronal proportion was used to fit our beta values to reference profiles of neuronal and glial methylation, removing variation due to cell type.
+
+**Input: **
+
+--ComBat corrected data = file: GSE43414_batch_cor.RData
+
+--meta data = file: Meta_batch_cor.RData
+
+**Output:**
+  - files
+
+--CETS corrected data = file: GSE43414_cell_cor.RData
+
+
+**Conclusion**
+![](/Images/PCA_cell_zoom)   
+After cell type correction, Neuron comprised a smaller propotion of total variance, and we unmasked some effects of braak stage, age, and AD disease status. 
+
 
 Analysis
 --------
@@ -49,7 +116,7 @@ Analysis
 *Sample to sample correlation:*
 
 **Aim**
-to determine whether the samples correlate well with eachother. If processing normalized the data we should see that samples will correlate with samples within the same cell type and outside of the same cell type.
+To determine whether the samples correlate well with each other. If processing normalized the data we should see that samples will correlate with samples within the same cell type and outside of the same cell type.
 
 **inputs**
 
@@ -63,7 +130,7 @@ to determine whether the samples correlate well with eachother. If processing no
 
 --QN + BMIQ filtered + cell type corrected data = file: GSE43414_cell_cor.RData
 
---meta data = file:Meta_batch_cor.RData
+--meta data = file: Meta_batch_cor.RData
 
 **outputs**
 - images
@@ -121,13 +188,13 @@ chr [1:7419] "cg06826710" "cg25057705" "cg01219907" "cg04462567" ...
 
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)
 
-**conclusions**
-correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
+**Conclusions**
+Correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
 
-*single probe comparisons and Wilcoxon tests*
+*Single probe comparisons and Wilcoxon tests*
 
 **Aim**
-to show statistical differences between tissues regions in probes found only in the cell type corrected analysis, only in the non cell type corrected analysis and in both.
+To show statistical differences between tissues regions in probes found only in the cell type corrected analysis, only in the non cell type corrected analysis and in both.
 
 **inputs**
 
@@ -167,7 +234,7 @@ cg23112745    | 9.327963e-06  | 9.327963e-06      |
 cg06826710    | 3.652858e-15  | 1.095857e-14      |
 
 
-**conclusions**
+**Conclusions**
 correcting for cell type can effect the relationship between cortex and cerebellum methylation differences. 
 
 Overall conclusions:
