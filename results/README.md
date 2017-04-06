@@ -180,10 +180,13 @@ List of top probes significant in batch-corrected only:
 chr [1:7419] "cg06826710" "cg25057705" "cg01219907" "cg04462567" ...
 
 ![Batch-corrected DMPs](/Images/volcano_DB_batch.png)
+Batch-corrected DMPs   
 
 ![Cell-corrected DMPs](/Images/volcano_DB_cell.png)
+Cell-corrected DMPs   
 
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)
+Number of significant probes found in each type of analysis conducted   
 
 **Conclusions**   
 Correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
