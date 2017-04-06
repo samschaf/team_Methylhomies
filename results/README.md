@@ -246,6 +246,6 @@ Overall conclusions:
 • Technical and biological variability to account for are batch effects and cell type variation across   
 brain regions to allow for comparison between tissues
 • Differential methylation analysis reveals DMPs that are attributed to cell type variation and those   
-that are independent of cell type variation
+that are independent of cell type variation   
 • Failing to correct for cell type may result in identification of false positive DMPs/DMRs, with
 implications for biological conclusions concerning clinically relevant loci
