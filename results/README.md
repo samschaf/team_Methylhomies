@@ -103,7 +103,7 @@ to identify and compare differentially methylated probes (at an FDR 0.05 and abs
 
 **outputs**
 
-- Top Probes:
+- Top Probes (The full txt files are too large for upload, so a subset is presented here):
 
 List of top probes significant in both datasets:
 
