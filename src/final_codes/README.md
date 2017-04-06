@@ -9,10 +9,10 @@ Steps after [downloading the Data](https://github.com/STAT540-UBC/team_Methylhom
 We downloaded both the Dasen normalized data and the QN normalized data
 
 ## Processing
-- Dasen data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20Dasen.Rmd) code and QN data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20QN.Rmd)
+- Dasen data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20Dasen.Rmd) code and QN data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20QN.Rmd) code   
 - [Blood samples were then removed from the data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Create.brain.only.Rmd)
 - The QN-normalized beta values were then [BMIQ normalized](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/BMIQ_final.md)
-- Both the BMIQ data sets and Dasen data sets went through [combat/PCA and cell type correction](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/PCA%20%26%20ComBat.md)
+- The BMIQ data set went through [cell type prediction](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/Cell%20Type%20Prediction.Rmd) and [combat/PCA and cell type correction](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/PCA%20%26%20ComBat.md)
 
 A overview of the processing steps are visualized in this pipeline:
 
