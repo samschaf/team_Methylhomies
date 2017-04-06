@@ -182,11 +182,14 @@ chr [1:7419] "cg06826710" "cg25057705" "cg01219907" "cg04462567" ...
 ![Batch-corrected DMPs](/Images/volcano_DB_batch.png)   
 Batch-corrected DMPs   
 
+
 ![Cell-corrected DMPs](/Images/volcano_DB_cell.png)   
 Cell-corrected DMPs   
 
+
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)   
 Number of significant probes found in each type of analysis conducted   
+
 
 **Conclusions**   
 Correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
@@ -239,10 +242,10 @@ correcting for cell type can affect the relationship between cortex and cerebell
 
 Overall conclusions:
 ======================
-• BMIQ normalization is more suitable for cross-sample comparisons
-• Technical and biological variability to account for are batch effects and cell type variation across
+• BMIQ normalization is more suitable for cross-sample comparisons   
+• Technical and biological variability to account for are batch effects and cell type variation across   
 brain regions to allow for comparison between tissues
-• Differential methylation analysis reveals DMPs that are attributed to cell type variation and those
+• Differential methylation analysis reveals DMPs that are attributed to cell type variation and those   
 that are independent of cell type variation
 • Failing to correct for cell type may result in identification of false positive DMPs/DMRs, with
 implications for biological conclusions concerning clinically relevant loci
