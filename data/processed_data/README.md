@@ -7,7 +7,7 @@ We were able to upload the [meta data before combat](https://github.com/STAT540-
 Intermediate tables generated during DMR analysis include:
 
 1) Batch corrected analysis   
-Annotated list of differentially methlyated probes (DMPs) between brain regions - [here] (https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/significant.DMPs_batch.txt)   
+Annotated list of differentially methlyated probes (DMPs) between brain regions - [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/significant.DMPs_batch.txt)   
 List of broad differentially methlyated regions (DMRs) with min, max, and mean for both beta fold change and delta beta (absolute beta difference) - [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/processed_data/significant.DMRs_batch.txt)
 
 2) Cell corrected analysis   
