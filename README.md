@@ -66,7 +66,7 @@ A overview of the processing steps are visualized in this pipeline:
 - Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa**)
 
 3. Administrative tasks and preparation of deliverables:
-- [Project Proposal](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)(**Lead:Sam, Everyone**)
+- [Project Proposal](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)(**Lead:Sam +Lisa, Everyone**)
 - Repo Readme directories(**Lead: Cassia, everyone**)
 - [Progress report](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/progress_report.md)(**Lead: Sam + Hilary, everyone**)
 - [Poster](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/Poster.pdf)(**Lead: Cassia + Hilary + Sam, everyone**)
