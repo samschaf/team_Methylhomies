@@ -1,5 +1,5 @@
 Normalizing for Cell Type: Does it matter?
-
+============================================
 
 Team
 ------------
@@ -35,16 +35,48 @@ Objectives
 
 Data
 -----
+Samples of entorhinal cortex (EC), prefrontal cortex (PFC), superior temporal gyrus (STG), and cerebellum (CER) tissue, as well as blood samples, were collected from patients in archives of the MRC London Neurodegenerative Disease Brain Bank. Degradation and purity analysis were done on the samples using phenol-chloroform extraction and bisulfite conversion was performed using the Zymo EZ 96 DNA methylation kit (Zymo Research). A total of 531 samples from 122 individuals were included for further analysis
 
-Analysis and tasks directory
+DNA methylation was determined using Illumina Infinium HumanMethylation450 BeadChip (Illumina) and an Illumina HiScan System (Illumina). Raw signal intensities of the probe were quantified using the Illumina Genome Studio software and converted into beta values using the methylumi package in R. 
+
+A description of the data and how it was obtained can be found [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/data/README.md)
+
+We downloaded both the Dasen normalized data and the QN normalized data. Meta data was obtained from GEO using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Acquiring%20GEO%20meta%20data.Rmd) code
+
+[Analysis and tasks directory](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/README.md)
 ----------------------------
+Methodology with division of labour and links to analysis. 
 
-A summary of major analysis, their motivations, and their main results
+1. Processing
+- Dasen data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20Dasen.Rmd) code and QN data was filtered using [this](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Probe%20Filtering%20QN.Rmd) code (**Hilary,Sam**)
+- [Blood samples were then removed from the data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Create.brain.only.Rmd) (**Cassia**)
+- The QN-normalized beta values were then [BMIQ normalized](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/BMIQ_final.md) (**Sam**)
+- The BMIQ data set went through [cell type prediction](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/Cell%20Type%20Prediction.Rmd) and [combat/PCA and cell type correction](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/PCA%20%26%20ComBat.md) (**Sam**)
+
+A overview of the processing steps are visualized in this pipeline:
+
+![](/Images/Pipeline_of_Methods.png)
+
+2. Analysis
+- Sample to sample correlation plots and heatmaps were created from various codes that can be found with explanations in the working_code [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md). This is the final code for the [BMIQ data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(BMIQ).Rmd) and [Dasen data](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd) (**Cassia, Lisa, Hilary**)
+- Differentially methylated probe (DMP) and differentially methylated region (DMR) analysis was conduced using various codes
+  +Linear modelling for delta betas and generating volcano plots was performed on batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20batch%20cor.md) and cell-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20cell%20cor.md)(**Randip**)
+ + DMP analysis was conducted on the batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Batch%20Corrected%20Only%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Batch_Corrected_Only__DMR_Setup__Final.md). The same analysis was also conducted on the batch and cell-type corrected dataset [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Cell-Type%20Corrected%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Cell-Type_Corrected__DMR_Setup__Final.md), where comparisons of significant probes (at an FDR <= 0.05 and with an absolute value delta beta >= 0.05) found in these two datasets were also made. (**Randip**)
+- Boxplots for the most differentially methylated probes were generated [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd). Preliminary versions of the code can be found in the [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md) (**Cassia**)
+- Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa))
+
+3. Administrative tasks and preparation of deliverables:
+- [Project Proposal](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)(**Lead:Sam, Everyone**)
+- Repo Readme directories(**Lead: Cassia, everyone**)
+- [Progress report](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/progress_report.md)(**Lead: Sam + Hilary, everyone**)
+- [Poster](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/Poster.pdf)(**Lead: Cassia + Hilary + Sam, everyone**)
+- [Bibliography](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md)(**Everyone**)
+
+[A summary of major analysis, their motivations, and their main results](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/results)
 ----------------------------------------------------------------------
 
 Discussion
 ------------
-
 
 Deliverables
 --------------
