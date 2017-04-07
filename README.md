@@ -30,8 +30,8 @@ The [Hannon *et al* paper](https://github.com/STAT540-UBC/team_Methylhomies/blob
 Objectives
 ----------
 
-1.To determine whether cell type correction between brain regions is necessary in the analysis of Illumina HumanMethylation450 BeadChip array data
-2.To investigate probes differentially methylated between cerebellum and cortex regions
+1. To determine whether cell type correction between brain regions is necessary in the analysis of Illumina HumanMethylation450 BeadChip array data
+2. To investigate probes differentially methylated between cerebellum and cortex regions
 
 Data
 -----
@@ -63,7 +63,7 @@ A overview of the processing steps are visualized in this pipeline:
   +Linear modelling for delta betas and generating volcano plots was performed on batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20batch%20cor.md) and cell-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20cell%20cor.md)(**Randip**)
  + DMP analysis was conducted on the batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Batch%20Corrected%20Only%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Batch_Corrected_Only__DMR_Setup__Final.md). The same analysis was also conducted on the batch and cell-type corrected dataset [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Cell-Type%20Corrected%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Cell-Type_Corrected__DMR_Setup__Final.md), where comparisons of significant probes (at an FDR <= 0.05 and with an absolute value delta beta >= 0.05) found in these two datasets were also made. (**Randip**)
 - Boxplots for the most differentially methylated probes were generated [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd). Preliminary versions of the code can be found in the [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md) (**Cassia**)
-- Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa**))
+- Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa**)
 
 3. Administrative tasks and preparation of deliverables:
 - [Project Proposal](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)(**Lead:Sam, Everyone**)
@@ -100,7 +100,7 @@ DMP and DMR analysis was done to identify and compare differentially methylated 
 Discussion
 ------------
 
-Our project analyzed different normalization methods to show that cell type has an effect on methylation and when comparing regions with varying cell type proportions performing this cell type correction is needed to determine regions of differential methylation that are independant of cell type. Differential methylated regions independant of cell type that our analysis found include: TRAK1, ERCC5, METTL21EP, RGS6, WSCD1, among others. 
+Our project analyzed different normalization methods to show that cell type has an effect on methylation and when comparing regions with varying cell type proportions performing this cell type correction is needed to determine regions of differential methylation that are independant of cell type. Differential methylated regions independant of cell type that our analysis found include: TRAK1, ERCC5, METTL21EP, RGS6, WSCD1, among others. Previous work has shown that methylation in certain brain regions may play a role in the development of Alzheimers disease. Correcting for cell type may be a critical step in determining genes that are differentially methylated between brain regions and could be further used to compare between healthy and diseased invididuals [13](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md). For example [RGS6](http://www.genecards.org/cgi-bin/carddisp.pl?gene=RGS6) which was only found in our CETS analysis has been linked to Alzheimers disease.
 
 
 Deliverables
