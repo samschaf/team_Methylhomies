@@ -27,3 +27,5 @@ American Journal of Human Genetics. 81(6): 1304-1315.
 
 [12]  Du P, Zhang X, Huang C-C, Jafari N, Kibbe WA, Hou L, et al. (2010). Comparison of Beta-value and M-value methods for quantifying methylation levels by microarray analysis. BMC Bioinformatics. 11(1): 587. 
 
+[13] De Jager P, Srivastava G, Lunnon K, Burgess J, Schalkwyk L, Yu L, et al. (2014) Alzheimery’s disease pathology is associated with early alterations in brain DNA methylation at ANK1, BIN1, RHBDF2 and other loci HHS Public Access. Nat Neurosci. 17(9):1156–63. 
+
