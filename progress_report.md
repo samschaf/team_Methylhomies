@@ -49,7 +49,7 @@ The initial four peaks are smoothed into two main peaks; the second peak has a l
 
 **PCA on ComBat-corrected data:**
 
-![](Images/PCA_batch_Zoom.png)
+![](Images/PCA_batch_zoom.png)
 
 Row and chip effects were removed. This slightly altered the PC distribution of the remaining variables.
 
