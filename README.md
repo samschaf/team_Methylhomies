@@ -1,4 +1,4 @@
-# team_Methylhomies
+Normalizing for Cell Type: Does it matter?
 
 
 Team
@@ -21,14 +21,17 @@ An outlne of our project can be found in our [Project proposal](https://github.c
 Introduction
 ------------
 
-DNA methylation (DNAm), or covalent attachment of a methyl group to the 5’ position of cytosine bases located in CpG dinucleotides, plays a crucial role in maintaining patterns of gene expression during human development and aging. Along with other epigenetic modifications, DNAm is sensitive to environmental influences and can change over an individual’s lifespan. Thus, understanding the human methylome is important for determining both biomarkers for - and direct pathways implicating - health and disease [1]. Aberrant DNAm patterns have been correlated with common neurodegenerative disorders, including Alzheimer’s Disease and Parkinson’s Disease [2], as well as with mental disorders such as schizophrenia [3,4]. However, much of the literature on either the diseased or healthy brain methylome fails to separate DNAm data by cell type composition - a major driver of DNAm variability - or by brain region [5-8]. 
+DNA methylation (DNAm), or covalent attachment of a methyl group to the 5’ position of cytosine bases located in CpG dinucleotides, plays a crucial role in maintaining patterns of gene expression during human development and aging. Along with other epigenetic modifications, DNAm is sensitive to environmental influences and can change over an individual’s lifespan. Thus, understanding the human methylome is important for determining both biomarkers for - and direct pathways implicating - health and disease [1](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md). Aberrant DNAm patterns have been correlated with common neurodegenerative disorders, including Alzheimer’s Disease and Parkinson’s Disease [2](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md), as well as with mental disorders such as schizophrenia [3,4](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md). However, much of the literature on either the diseased or healthy brain methylome fails to separate DNAm data by cell type composition - a major driver of DNAm variability - or by brain region [5-8](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md). 
 
 Motivation
------------
+---------
+The [Hannon *et al* paper](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/Interindividual%20methylomic%20variation%20across%20blood%20cortex%20and%20cerebellum%20implications%20for%20epigenetic%20studies%20of%20neurological%20and%20neuropsychiatric.pdf) compared methylation levels across brain regions and the blood to determine differential methylation between the regions. However their analysis did not include normalizing for cell type which is a major driver of DNAm variability [5-8](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/background_information/README.md). Correcting for cell type would enable a comparison of differential methylation independant of cell type. Therefore, we wanted to further evaluate whether cell type correction is nessisary for this analysis and determine differentially methylated regions that would be missed if cell type correction was not included in the analysis.
 
 Objectives
 ----------
 
+1.To determine whether cell type correction between brain regions is necessary in the analysis of Illumina HumanMethylation450 BeadChip array data
+2.To investigate probes differentially methylated between cerebellum and cortex regions
 
 Data
 -----
