@@ -190,6 +190,7 @@ Cell-corrected DMPs
 ![Number of significant probes found in each type of analysis conducted](/results/Venndiagram/DMPs_venn.png)   
 Number of significant probes found in each type of analysis conducted   
 
+![](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/results/Venndiagram/Screen%20Shot%202017-04-07%20at%2012.29.33%20PM.png)
 
 **Conclusions**   
 Correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified.
