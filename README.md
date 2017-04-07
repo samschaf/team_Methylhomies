@@ -63,7 +63,7 @@ A overview of the processing steps are visualized in this pipeline:
   +Linear modelling for delta betas and generating volcano plots was performed on batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20batch%20cor.md) and cell-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/DMR%20cell%20cor.md)(**Randip**)
  + DMP analysis was conducted on the batch-corrected data [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Batch%20Corrected%20Only%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Batch_Corrected_Only__DMR_Setup__Final.md). The same analysis was also conducted on the batch and cell-type corrected dataset [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially%20Methylated%20Probe%20Analysis%20-%20Cell-Type%20Corrected%20(DMR%20Setup)%20Final.Rmd) and [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/DMR%20Analysis/Differentially_Methylated_Probe_Analysis_-_Cell-Type_Corrected__DMR_Setup__Final.md), where comparisons of significant probes (at an FDR <= 0.05 and with an absolute value delta beta >= 0.05) found in these two datasets were also made. (**Randip**)
 - Boxplots for the most differentially methylated probes were generated [here](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/final_codes/Heatmaps%20(dasen).Rmd). Preliminary versions of the code can be found in the [README](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/src/working_codes/README.md) (**Cassia**)
-- Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa))
+- Wilcoxon test was performed to compare probe values between cerebellum and cortex for the most significantly differentially methylated probe. The most significantly differentially methylated probe that was found only in the list from cell type corrected, only in non cell-type corrected, and in the overlap was chosen for visualization with the boxplots. The code for the wilcoxon test can be found [here](WilcoxTestProbes_analysis.R) (**Lisa**))
 
 3. Administrative tasks and preparation of deliverables:
 - [Project Proposal](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/project_proposal.md)(**Lead:Sam, Everyone**)
@@ -75,8 +75,33 @@ A overview of the processing steps are visualized in this pipeline:
 [A summary of major analysis, their motivations, and their main results](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/results)
 ----------------------------------------------------------------------
 
+**Processing**
+
+Probe filtering was performed to remove probes from the data which would confound our analysis, including probes with SNPs, probes with NAs, and cross-hybridizing probes. Data was also filtered to contain only brain samples (originally had brain + blood).Prior to filtering, there were 485577 probes. Filtering removed 65 SNP probes, 20869 probes that had a SNP within, 11475 probes hybridzing to sex chromosomes, 10673 cross hybrizing X and Y probes, 27415 cross hybridizing autosomal probes, and 176 NA probes. A total of 414904 probes remained. 
+
+We had origionally downloaded the Dasen normalized data that was used in the Hannon paper. After probe filtering and normalization the PCA analysis was unusual. After further investigation into the literature we determined that QN and BMIQ normalization would be more appropriate for our analysis. BMIQ normalization was done on the QN data to correct for intra-array differences between probe type I and II chemistries that cause differing beta value distributions. This was performed on the QN-normalized data we had decided to move forward with, in order to make direct comparisons between any CpG site across any two brain regions. 
+
+Multiple BeadChips were used to generate this data; we aimed to correct for variation due to the individual chip and position on the chip with Combat. Since we would be analyzing the effect of cell type, we also used to CETS package to predict proportions of neurons and glia based on the non-corrected and the corrected beta values. These neuronal propotions were attached to the meta data and used as continous variables in PCA analysis. Before batch correction, there was a large effect of chip and tissue; it appeared the samples had been batched by tissue type. After batch correction, the chip and tissue effects plus much of the other variation was removed, leaving only a Neuron (cell type) effect. Linear regression and the predicted neuronal proportion was used to fit our beta values to reference profiles of neuronal and glial methylation, removing variation due to cell type. After cell type correction, Neuron comprised a smaller propotion of total variance, and we unmasked some effects of braak stage, age, and AD disease status.
+
+**Analysis**
+
+Sample to Sample Correlations were done to determine whether the samples correlate well with each other. If processing normalized the data we should see that samples will correlate with samples both within the same cell type and outside of the same cell type. QN+BMIQ normalization increased sample to sample correlations compared to dasen normalization. Cell type correction increases inter tissue sample correlations in the dasen model, in line with the purpose of the normalization method to increase the comparability between tissues. This is unable to be seen in the BMIQ data as the samples are already highly correlated.
+
+DMP and DMR analysis was done to identify and compare differentially methylated probes (at an FDR 0.05 and absolute delta beta >=0.05) between tissue type, and differentially methylated regions in both the batch-corrected only data, and the both batch-corrected and cell-type corrected data. We found that correcting for cell type when examining cortex and cerebellum methylation differences may alter the number of significant probes and regions identified. We then plotted individual probes found only within the non cell corrected, cell corrected, and both analyses and performed wilcoxon tests to show statistical differences between tissues regions in probes found only in the cell type corrected analysis, only in the non cell type corrected analysis, and in both. 
+
+![](https://github.com/STAT540-UBC/team_Methylhomies/blob/master/results/Venndiagram/Screen%20Shot%202017-04-07%20at%2012.29.33%20PM.png)
+
+**Summary**
+• BMIQ normalization is more suitable for cross-sample comparisons
+• Technical and biological variability to account for are batch effects and cell type variation across brain regions to allow for comparison between tissues
+• Differential methylation analysis reveals DMPs that are attributed to cell type variation and those that are independent of cell type variation
+• Failing to correct for cell type may result in identification of false positive DMPs/DMRs, with implications for biological conclusions concerning clinically relevant loci
+
 Discussion
 ------------
+
+Our project analyzed different normalization methods to show that cell type has an effect on methylation and when comparing regions with varying cell type proportions performing this cell type correction is needed to determine regions of differential methylation that are independant of cell type. Differential methylated regions independant of cell type that our analysis found include: TRAK1, ERCC5, METTL21EP, RGS6, WSCD1, among others. 
+
 
 Deliverables
 --------------
