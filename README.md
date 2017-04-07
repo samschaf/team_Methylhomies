@@ -105,7 +105,7 @@ Our [src folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/sr
   
 Our [results folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/results) contains the decriptions of the aims and conclusions of our analysis steps and the important final images derived from the analysis
 
-*Other folders*
+**Other folders**
 
 Our [resources folder](https://github.com/STAT540-UBC/team_Methylhomies/tree/master/resources) includes codes that we modified for our analysis. These codes have been referenced in our src where appropriate
 
